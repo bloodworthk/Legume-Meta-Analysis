@@ -33,11 +33,16 @@ library(lmerTest)
 library(nlme)
 #install.packages("tidyverse")
 library(tidyverse)
+#install.packages("car")
+library(car)
 
 
 #### Set Working Directory ####
 #Bloodworth - Mac
 setwd("/Users/kathrynbloodworth/Dropbox (Smithsonian)/Projects/Invasive Legume Meta-Analysis/data")
+
+#pc
+setwd("/Users/kjbloodw/Dropbox (Smithsonian)/Projects//Invasive Legume Meta-Analysis/data/")
 
 #### Read in Data ####
 accession_numbers<-read.csv("legume_strain diversity_meta analysis_strain sequences.csv",stringsAsFactors = FALSE,na.strings="")
@@ -222,7 +227,6 @@ sequences19 <- entrez_fetch(id = accession_number_list1,
 sequences20 <- entrez_fetch(id = accession_number_list1,
                             db = "nuccore", 
                             rettype = "fasta")
-
 sequences21 <- entrez_fetch(id = accession_number_list1,
                            db = "nuccore", 
                            rettype = "fasta")
@@ -253,7 +257,6 @@ sequences29 <- entrez_fetch(id = accession_number_list1,
 sequences30 <- entrez_fetch(id = accession_number_list1,
                             db = "nuccore", 
                             rettype = "fasta")
-
 sequences31 <- entrez_fetch(id = accession_number_list1,
                            db = "nuccore", 
                            rettype = "fasta")
@@ -284,7 +287,6 @@ sequences39 <- entrez_fetch(id = accession_number_list1,
 sequences40 <- entrez_fetch(id = accession_number_list1,
                             db = "nuccore", 
                             rettype = "fasta")
-
 sequences41 <- entrez_fetch(id = accession_number_list1,
                            db = "nuccore", 
                            rettype = "fasta")
@@ -315,7 +317,6 @@ sequences49 <- entrez_fetch(id = accession_number_list1,
 sequences50 <- entrez_fetch(id = accession_number_list1,
                             db = "nuccore", 
                             rettype = "fasta")
-
 sequences51 <- entrez_fetch(id = accession_number_list1,
                            db = "nuccore", 
                            rettype = "fasta")
@@ -346,7 +347,6 @@ sequences59 <- entrez_fetch(id = accession_number_list1,
 sequences60 <- entrez_fetch(id = accession_number_list1,
                             db = "nuccore", 
                             rettype = "fasta")
-
 sequences61 <- entrez_fetch(id = accession_number_list1,
                            db = "nuccore", 
                            rettype = "fasta")
@@ -377,8 +377,6 @@ sequences69 <- entrez_fetch(id = accession_number_list1,
 sequences70 <- entrez_fetch(id = accession_number_list1,
                             db = "nuccore", 
                             rettype = "fasta")
-
-
 sequences71 <- entrez_fetch(id = accession_number_list1,
                            db = "nuccore", 
                            rettype = "fasta")
@@ -480,18 +478,27 @@ Rhizobial_Associations_Condensed<-Rhizobial_Associations %>%
   na.omit()
 
 #Make a data frame calculating the mean, standard error, and number of observations for native vs. non-native to make graph
-Average_rhizobial_symbionts_Graph<-Rhizobial_Associations_Condensed%>%
+Average_rhizobial_symbionts_genus_sp<-Rhizobial_Associations_Condensed%>%
   filter(diversity_sum!=999)%>%
-  group_by(Plant_status)%>%
-  summarize(symbionts_Std=sd(diversity_sum),symbionts_Mean=mean(diversity_sum),symbionts_n=length(diversity_sum))%>%
+  group_by(Plant_status,genus_species)%>%
+  summarize(symbionts_Std=sd(diversity_sum),symbionts_Mean=mean(diversity_sum),species_status_n=length(diversity_sum))%>%
   #Make a new column called "Richness_St_Error" and divide "Richness_Std" by the square root of "Richness_n"
-  mutate(symbionts_St_Error=symbionts_Std/sqrt(symbionts_n))
+  mutate(symbionts_St_Error=symbionts_Std/sqrt(species_status_n)) %>% 
+  ungroup()
+
+#Make a data frame calculating the mean, standard error, and number of observations for native vs. non-native to make graph
+Average_rhizobial_symbionts_Graph<-Average_rhizobial_symbionts_genus_sp%>%
+  group_by(Plant_status)%>%
+  summarize(symbionts_Std=sd(symbionts_Mean),symbionts_Mean2=mean(symbionts_Mean),status_n=length(symbionts_Mean))%>%
+  #Make a new column called "Richness_St_Error" and divide "Richness_Std" by the square root of "Richness_n"
+  mutate(symbionts_St_Error=symbionts_Std/sqrt(status_n)) %>% 
+  ungroup()
 
 #Make graph showing number of introduced vs. native
-ggplot(Average_rhizobial_symbionts_Graph,aes(x=Plant_status,y=symbionts_Mean,fill=Plant_status))+
+ggplot(Average_rhizobial_symbionts_Graph,aes(x=Plant_status,y=symbionts_Mean2,fill=Plant_status))+
   #Make a bar graph where the height of the bars is equal to the data (stat=identity) and you preserve the vertical position while adjusting the horizontal(position_dodge), and outline the bars with the color black.
   geom_bar(stat="identity", position=position_dodge(),color="black")+
-  geom_errorbar(aes(ymin=symbionts_Mean-symbionts_St_Error,ymax=symbionts_Mean+symbionts_St_Error),position=position_dodge(0.9),width=0.2)+
+  geom_errorbar(aes(ymin=symbionts_Mean2-symbionts_St_Error,ymax=symbionts_Mean2+symbionts_St_Error),position=position_dodge(0.9),width=0.2)+
   #make error bars using the Standard error from the mean and place them at 0.9 with a width of 0.2
   #Label the x-axis "Watershed"
   xlab("Plant Species Status")+
@@ -500,7 +507,11 @@ ggplot(Average_rhizobial_symbionts_Graph,aes(x=Plant_status,y=symbionts_Mean,fil
   #Fill the bar graphs with grey and white according and label them "Inside Fence" and "Outside Fence"
   scale_fill_manual(values=c("darkslategrey","cadetblue4"), labels=c("Native","Non-native"))  
 
-t.test(Rhizobial_Associations_Condensed$diversity_sum~Rhizobial_Associations_Condensed$Plant_status)  
+hist(Rhizobial_Associations_Condensed$diversity_sum)
+
+#Run anova accounting for how many species 
+summary (Mixed_Model_Rhiz_Status<- lmer(symbionts_Mean ~ Plant_status + (1 | species_status_n), data = Average_rhizobial_symbionts_genus_sp))
+Anova(Mixed_Model_Rhiz_Status,type = 2)
 
 #### Rhizobial Associates by Growth Form  ####
 
@@ -570,3 +581,67 @@ ggplot(Average_annual_perennial_Graph,aes(x=annual_perennial,y=symbionts_Mean,fi
   scale_fill_manual(values=c("darkslategrey","cadetblue4"))  
 
 t.test(Rhizobial_Associations_GF_Condensed$diversity_sum~Rhizobial_Associations_GF_Condensed$annual_perennial) 
+
+
+#### Number Nodules (sample number) by strain richness ####
+
+Nod_by_strain<-Plant_Data %>%
+  filter(num_nodules!=999)%>%
+  filter(strain_richness!=999,strain_richness!="NEED SUPPLEMENTAL PAPER")%>%
+  filter(genus_species!=999)%>%
+  filter(!is.na(num_nodules),!is.na(strain_richness))%>% 
+  mutate(strain_richness=as.numeric(strain_richness)) %>% 
+  filter(num_nodules>10) %>% 
+  group_by(genus_species) %>% 
+  summarize(num_nod_Mean=mean(num_nodules),num_nod_n=length(num_nodules),strain_rich_Mean=mean(strain_richness),strain_rich_n=length(strain_richness))%>%
+  ungroup()
+
+hist(subset_nod_by_strain$num_nod_Mean) 
+
+ggplot(Nod_by_strain,aes(y=strain_rich_Mean,x=num_nod_Mean))+
+  geom_point()+
+  geom_smooth()+
+  #keep entire graph but zoom in on certain area
+  coord_cartesian(xlim=c(0,100))
+
+#merge plant status with number of nodules
+Rhiz_symbionts_Nod_Num<-Nod_by_strain %>% 
+  left_join(Average_rhizobial_symbionts_genus_sp) %>% 
+  select(-symbionts_Std,-symbionts_St_Error) %>% 
+  filter(!is.na(num_nod_Mean),!is.na(Plant_status))
+
+#look at difference between strain richness number and symbionts number
+ggplot(Rhiz_symbionts_Nod_Num,aes(y=strain_rich_Mean,x=symbionts_Mean))+
+  geom_point()+
+  geom_abline()
+
+#make dataframe for graph
+Strain_rich_graph<-Rhiz_symbionts_Nod_Num %>% 
+  group_by(Plant_status) %>% 
+  summarize(strain_rich_Mean2=mean(strain_rich_Mean),strain_rich_n2=length(strain_rich_Mean),strain_rich_Std=sd(strain_rich_Mean))%>%  
+  mutate(strain_rich_St_Error=strain_rich_Std/sqrt(strain_rich_n2)) %>% 
+  ungroup()
+
+#Make graph showing number of introduced vs. native
+ggplot(Strain_rich_graph,aes(x=Plant_status,y=strain_rich_Mean2,fill=Plant_status))+
+  #Make a bar graph where the height of the bars is equal to the data (stat=identity) and you preserve the vertical position while adjusting the horizontal(position_dodge), and outline the bars with the color black.
+  geom_bar(stat="identity", position=position_dodge(),color="black")+
+  geom_errorbar(aes(ymin=strain_rich_Mean2-strain_rich_St_Error,ymax=strain_rich_Mean2+strain_rich_St_Error),position=position_dodge(0.9),width=0.2)+
+  #make error bars using the Standard error from the mean and place them at 0.9 with a width of 0.2
+  #Label the x-axis "Watershed"
+  xlab("Plant Species Status")+
+  #Label the y-axis "Species Richness"
+  ylab("Average Strain Richness")+
+  #Fill the bar graphs with grey and white according and label them "Inside Fence" and "Outside Fence"
+  scale_fill_manual(values=c("darkslategrey","cadetblue4"), labels=c("Native","Non-native"))  
+
+hist(Rhizobial_Associations_Condensed$diversity_sum)
+
+#Run anova accounting for how many species and how many nodules they sample
+summary (Mixed_Model_Rhiz_Status_Strain_rich<- lmer(strain_rich_Mean ~ Plant_status + (1 | species_status_n) + (1 | num_nod_Mean), data = Rhiz_symbionts_Nod_Num))
+Anova(Mixed_Model_Rhiz_Status_Strain_rich,type = 2)
+
+summary (Mixed_Model_Rhiz_Status_symbionts<- lmer(symbionts_Mean ~ Plant_status + (1 | species_status_n) + (1 | num_nod_Mean), data = (Rhiz_symbionts_Nod_Num)))
+Anova(Mixed_Model_Rhiz_Status_symbionts,type = 2)
+
+
