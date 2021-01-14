@@ -78,325 +78,751 @@ accession_numbers_nNA <- accession_numbers %>%
   select(paper_id,author,title,year,genus,species,genus_species,plant_status,sample_country,sample_continent,genetic_region,strain,accession_number) %>% 
   drop_na(accession_number)
 
-#convert column of accession numbers into list
-accession_number_list<-(accession_numbers_nNA$accession_number)
-str(accession_number_list)
+#Remove any accession numbers for papers where only native species were studied. Keep all studies where introduced species were studied and keep all studies where native AND introduced species were studied either within a paper or across papers
+accession_numbers_Filtered<-accession_numbers_nNA %>% 
+  filter(!paper_id %in% c(3,7,10,13,16,17,18,23,25,28,29,30,32,33,34,37,40,41,42,43,47,54,60,61,64,66,67,68,70,71,72,73,74,75,81,82,84,88,90,92,94,95,96,98,99,100,101,102,103,104,105,106,107,108,109,110,112,116,118,120,121,123,124,127,130,131,132,135,136,140,141,142,143,145,146,149,151,152,153,155,157,161,163,165,166,167,168,169,170,171,172,174,175,178,181,183,189,190,192,193,194,195,196,198,199,200,201,202,204,205,206,207,208,209,212,213,214,215,220,221,222,223,224,225,227,228,229,231,232,233,234,239,241,242,243,244,245,246,247,248,250,251,252,255,256,258,259,260,261,262,263,264,268,269,271,272,273,275,276,278,279,281,282,283,284,285,286,288,290,292,293,294,295,296,300,301))
 
-#split list into multiple
-accession_number_list1<-accession_number_list[1:100]
-accession_number_list2<-accession_number_list[101:200]
-accession_number_list3<-accession_number_list[201:300]
-accession_number_list4<-accession_number_list[301:400]
-accession_number_list5<-accession_number_list[401:500]
-accession_number_list6<-accession_number_list[501:600]
-accession_number_list7<-accession_number_list[601:700]
-accession_number_list8<-accession_number_list[701:800]
-accession_number_list9<-accession_number_list[801:900]
-accession_number_list10<-accession_number_list[901:1000]
-accession_number_list11<-accession_number_list[1001:1100]
-accession_number_list12<-accession_number_list[1101:1200]
-accession_number_list13<-accession_number_list[1201:1300]
-accession_number_list14<-accession_number_list[1301:1400]
-accession_number_list15<-accession_number_list[1401:1500]
-accession_number_list16<-accession_number_list[1501:1600]
-accession_number_list17<-accession_number_list[1601:1700]
-accession_number_list18<-accession_number_list[1701:1800]
-accession_number_list19<-accession_number_list[1801:1900]
-accession_number_list20<-accession_number_list[1901:2000]
-accession_number_list21<-accession_number_list[2001:2100]
-accession_number_list22<-accession_number_list[2101:2200]
-accession_number_list23<-accession_number_list[2201:2300]
-accession_number_list24<-accession_number_list[2301:2400]
-accession_number_list25<-accession_number_list[2401:2500]
-accession_number_list26<-accession_number_list[2501:2600]
-accession_number_list27<-accession_number_list[2601:2700]
-accession_number_list28<-accession_number_list[2701:2800]
-accession_number_list29<-accession_number_list[2801:2900]
-accession_number_list30<-accession_number_list[2901:3000]
-accession_number_list31<-accession_number_list[3001:3100]
-accession_number_list32<-accession_number_list[3101:3200]
-accession_number_list33<-accession_number_list[3201:3300]
-accession_number_list34<-accession_number_list[3301:3400]
-accession_number_list35<-accession_number_list[3401:3500]
-accession_number_list36<-accession_number_list[3501:3600]
-accession_number_list37<-accession_number_list[3601:3700]
-accession_number_list38<-accession_number_list[3701:3800]
-accession_number_list39<-accession_number_list[3801:3900]
-accession_number_list40<-accession_number_list[3901:4000]
-accession_number_list41<-accession_number_list[4001:4100]
-accession_number_list42<-accession_number_list[4101:4200]
-accession_number_list43<-accession_number_list[4201:4300]
-accession_number_list44<-accession_number_list[4301:4400]
-accession_number_list45<-accession_number_list[4401:4500]
-accession_number_list46<-accession_number_list[4501:4600]
-accession_number_list47<-accession_number_list[4601:4700]
-accession_number_list48<-accession_number_list[4701:4800]
-accession_number_list49<-accession_number_list[4801:4900]
-accession_number_list50<-accession_number_list[4901:5000]
-accession_number_list51<-accession_number_list[5001:5100]
-accession_number_list52<-accession_number_list[5101:5200]
-accession_number_list53<-accession_number_list[5201:5300]
-accession_number_list54<-accession_number_list[5301:5400]
-accession_number_list55<-accession_number_list[5401:5500]
-accession_number_list56<-accession_number_list[5501:5600]
-accession_number_list57<-accession_number_list[5601:5700]
-accession_number_list58<-accession_number_list[5701:5800]
-accession_number_list59<-accession_number_list[5801:5900]
-accession_number_list60<-accession_number_list[5901:6000]
-accession_number_list61<-accession_number_list[6001:6100]
-accession_number_list62<-accession_number_list[6101:6200]
-accession_number_list63<-accession_number_list[6201:6300]
-accession_number_list64<-accession_number_list[6301:6400]
-accession_number_list65<-accession_number_list[6401:6500]
-accession_number_list66<-accession_number_list[6501:6600]
-accession_number_list67<-accession_number_list[6601:6700]
-accession_number_list68<-accession_number_list[6701:6800]
-accession_number_list69<-accession_number_list[6801:6900]
-accession_number_list70<-accession_number_list[6901:7000]
-accession_number_list71<-accession_number_list[7001:7100]
-accession_number_list72<-accession_number_list[7101:7200]
-accession_number_list73<-accession_number_list[7201:7300]
-accession_number_list74<-accession_number_list[7301:7400]
-accession_number_list75<-accession_number_list[7401:7500]
-accession_number_list76<-accession_number_list[7501:7558]
+#make subsetted data frames for each genetic region and convert into just a list of accession numbers
 
-#connect to GenBank database and download the sequences
+accession_numbers_16S<-accession_numbers_Filtered %>% 
+  filter(genetic_region %in% c("16S","16S-RFLP"))
+#make it a list
+accession_numbers_16S_list<-(accession_numbers_16S$accession_number)
+str(accession_numbers_16S_list)
 
-read.GenBank(d,species.name=TRUE)
+accession_numbers_nodC<-accession_numbers_Filtered %>% 
+  filter(genetic_region %in% c("nodC","NodC")) 
+#make it a list
+accession_numbers_nodC_list<-(accession_numbers_nodC$accession_number)
+  
+accession_numbers_nifH<-accession_numbers_Filtered %>% 
+  filter(genetic_region=="nifH")
+#make it a list
+accession_numbers_nifH_list<-(accession_numbers_nifH$accession_number)
+
+accession_numbers_nifHD<-accession_numbers_Filtered %>% 
+  filter(genetic_region=="nifHD") 
+#make it a list
+accession_numbers_nifHD_list<-(accession_numbers_nifHD$accession_number)
+
+accession_numbers_nodA<-accession_numbers_Filtered %>% 
+  filter(genetic_region=="nodA") 
+#make it a list
+accession_numbers_nodA_list<-(accession_numbers_nodA$accession_number)
 
 
+accession_numbers_nodZ<-accession_numbers_Filtered %>% 
+  filter(genetic_region=="nodZ") 
+#make it a list
+accession_numbers_nodZ_list<-(accession_numbers_nodZ$accession_number)
 
-sequences1 <- entrez_fetch(id = accession_number_list1,
+accession_numbers_glnII<-accession_numbers_Filtered %>% 
+  filter(genetic_region=="glnII")
+#make it a list
+accession_numbers_glnII_list<-(accession_numbers_glnII$accession_number)
+
+accession_numbers_atpD<-accession_numbers_Filtered %>% 
+  filter(genetic_region %in% c("atpd","atpD")) 
+#make it a list
+accession_numbers_atpD_list<-(accession_numbers_atpD$accession_number)
+
+accession_numbers_recA<-accession_numbers_Filtered %>% 
+  filter(genetic_region %in% c("recA","RecA","rec A"))
+#make it a list
+accession_numbers_recA_list<-(accession_numbers_recA$accession_number)
+
+
+accession_numbers_dnaK<-accession_numbers_Filtered %>% 
+  filter(genetic_region %in% c("dnaK","dnaKÊ")) 
+#make it a list
+accession_numbers_dnaK_list<-(accession_numbers_dnaK$accession_number)
+
+accession_numbers_noeI<-accession_numbers_Filtered %>% 
+  filter(genetic_region=="noeI")
+#make it a list
+accession_numbers_noeI_list<-(accession_numbers_noeI$accession_number)
+
+accession_numbers_nodD<-accession_numbers_Filtered %>% 
+  filter(genetic_region=="nodD") 
+#make it a list
+accession_numbers_nodD_list<-(accession_numbers_nodD$accession_number)
+
+accession_numbers_ITS<-accession_numbers_Filtered %>% 
+  filter(genetic_region %in% c("ITS","IGS")) 
+#make it a list
+accession_numbers_ITS_list<-(accession_numbers_ITS$accession_number)
+
+accession_numbers_23S<-accession_numbers_Filtered %>% 
+  filter(genetic_region=="23S") 
+#make it a list
+accession_numbers_23S_list<-(accession_numbers_23S$accession_number)
+
+accession_numbers_nifD<-accession_numbers_Filtered %>% 
+  filter(genetic_region=="nifD") 
+#make it a list
+accession_numbers_nifD_list<-(accession_numbers_nifD$accession_number)
+
+accession_numbers_thrC<-accession_numbers_Filtered %>% 
+  filter(genetic_region=="thrC") 
+#make it a list
+accession_numbers_thrC_list<-(accession_numbers_thrC$accession_number)
+
+accession_numbers_glnA<-accession_numbers_Filtered %>% 
+  filter(genetic_region=="glnA")
+#make it a list
+accession_numbers_glnA_list<-(accession_numbers_glnA$accession_number)
+
+accession_numbers_glnB<-accession_numbers_Filtered %>% 
+  filter(genetic_region=="glnB") 
+#make it a list
+accession_numbers_glnB_list<-(accession_numbers_glnB$accession_number)
+
+accession_numbers_gyrB<-accession_numbers_Filtered %>% 
+  filter(genetic_region=="gyrB")
+#make it a list
+accession_numbers_gyrB_list<-(accession_numbers_gyrB$accession_number)
+
+accession_numbers_rrs<-accession_numbers_Filtered %>% 
+  filter(genetic_region=="rrs") 
+#make it a list
+accession_numbers_rrs_list<-(accession_numbers_rrs$accession_number)
+
+accession_numbers_cpn60<-accession_numbers_Filtered %>% 
+  filter(genetic_region=="cpn60") 
+#make it a list
+accession_numbers_cpn60_list<-(accession_numbers_cpn60$accession_number)
+
+accession_numbers_gltA<-accession_numbers_Filtered %>% 
+  filter(genetic_region=="gltA") 
+#make it a list
+accession_numbers_gltA_list<-(accession_numbers_gltA$accession_number)
+
+accession_numbers_rpoB<-accession_numbers_Filtered %>% 
+  filter(genetic_region=="rpoB") 
+#make it a list
+accession_numbers_rpoB_list<-(accession_numbers_rpoB$accession_number)
+
+
+
+
+#split 16S list into multiple
+accession_numbers_16S_1<-accession_numbers_16S_list[1:100]
+accession_numbers_16S_2<-accession_numbers_16S_list[101:200]
+accession_numbers_16S_3<-accession_numbers_16S_list[201:300]
+accession_numbers_16S_4<-accession_numbers_16S_list[301:400]
+accession_numbers_16S_5<-accession_numbers_16S_list[401:500]
+accession_numbers_16S_6<-accession_numbers_16S_list[501:600]
+accession_numbers_16S_7<-accession_numbers_16S_list[601:700]
+accession_numbers_16S_8<-accession_numbers_16S_list[701:800]
+accession_numbers_16S_9<-accession_numbers_16S_list[801:900]
+accession_numbers_16S_10<-accession_numbers_16S_list[901:1000]
+accession_numbers_16S_11<-accession_numbers_16S_list[1001:1100]
+accession_numbers_16S_12<-accession_numbers_16S_list[1101:1200]
+accession_numbers_16S_13<-accession_numbers_16S_list[1201:1300]
+accession_numbers_16S_14<-accession_numbers_16S_list[1301:1342]
+
+#split atpD list into multiple
+accession_numbers_atpD_1<-accession_numbers_atpD_list[1:100]
+accession_numbers_atpD_2<-accession_numbers_atpD_list[101:200]
+accession_numbers_atpD_3<-accession_numbers_atpD_list[201:236]
+
+#split glnII list into multiple
+accession_numbers_glnII_1<-accession_numbers_glnII_list[1:100]
+accession_numbers_glnII_2<-accession_numbers_glnII_list[101:200]
+
+#split ITS list into multiple
+accession_numbers_ITS_1<-accession_numbers_ITS_list[1:100]
+accession_numbers_ITS_2<-accession_numbers_ITS_list[101:200]
+accession_numbers_ITS_3<-accession_numbers_ITS_list[201:300]
+accession_numbers_ITS_4<-accession_numbers_ITS_list[301:339]
+
+#split nodA list into multiple
+accession_numbers_nodA_1<-accession_numbers_nodA_list[1:100]
+accession_numbers_nodA_2<-accession_numbers_nodA_list[101:200]
+accession_numbers_nodA_3<-accession_numbers_nodA_list[201:254]
+
+#split nodC list into multiple
+accession_numbers_nodC_1<-accession_numbers_nodC_list[1:100]
+accession_numbers_nodC_2<-accession_numbers_nodC_list[101:200]
+accession_numbers_nodC_3<-accession_numbers_nodC_list[201:300]
+accession_numbers_nodC_4<-accession_numbers_nodC_list[301:400]
+accession_numbers_nodC_5<-accession_numbers_nodC_list[401:413]
+
+#split recA list into multiple
+accession_numbers_recA_1<-accession_numbers_recA_list[1:100]
+accession_numbers_recA_2<-accession_numbers_recA_list[101:200]
+accession_numbers_recA_3<-accession_numbers_recA_list[201:300]
+accession_numbers_recA_4<-accession_numbers_recA_list[301:400]
+accession_numbers_recA_5<-accession_numbers_recA_list[401:500]
+accession_numbers_recA_6<-accession_numbers_recA_list[501:573]
+
+#split nifH list into multiple
+accession_numbers_nifH_1<-accession_numbers_nifH_list[1:100]
+accession_numbers_nifH_2<-accession_numbers_nifH_list[101:200]
+accession_numbers_nifH_3<-accession_numbers_nifH_list[201:300]
+accession_numbers_nifH_4<-accession_numbers_nifH_list[301:400]
+
+#16S 1:100
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_16S_1,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_16S_1 <- entrez_fetch(id = accession_numbers_16S_1,
                          db = "nuccore", 
                          rettype = "fasta")
-sequences2 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences3 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences4 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences5 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences6 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences7 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences8 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences9 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences10 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
+#write fasta file to working directory
+write(sequences_16S_1,file="sequences_16S_1-100.fasta")
 
-sequences11 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences12 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences13 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences14 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences15 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences16 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences17 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences18 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences19 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences20 <- entrez_fetch(id = accession_number_list1,
-                            db = "nuccore", 
-                            rettype = "fasta")
-sequences21 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences22 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences23 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences24 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences25 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences26 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences27 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences28 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences29 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences30 <- entrez_fetch(id = accession_number_list1,
-                            db = "nuccore", 
-                            rettype = "fasta")
-sequences31 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences32 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences33 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences34 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences35 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences36 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences37 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences38 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences39 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences40 <- entrez_fetch(id = accession_number_list1,
-                            db = "nuccore", 
-                            rettype = "fasta")
-sequences41 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences42 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences43 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences44 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences45 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences46 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences47 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences48 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences49 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences50 <- entrez_fetch(id = accession_number_list1,
-                            db = "nuccore", 
-                            rettype = "fasta")
-sequences51 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences52 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences53 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences54 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences55 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences56 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences57 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences58 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences59 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences60 <- entrez_fetch(id = accession_number_list1,
-                            db = "nuccore", 
-                            rettype = "fasta")
-sequences61 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences62 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences63 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences64 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences65 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences66 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences67 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences68 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences69 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences70 <- entrez_fetch(id = accession_number_list1,
-                            db = "nuccore", 
-                            rettype = "fasta")
-sequences71 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences72 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences73 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences74 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences75 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-sequences76 <- entrez_fetch(id = accession_number_list1,
-                           db = "nuccore", 
-                           rettype = "fasta")
-write(sequences76,file="sequences76.fasta")
+#16S 101:200
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_16S_2,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_16S_2 <- entrez_fetch(id = accession_numbers_16S_2,
+                                    db = "nuccore", 
+                                    rettype = "fasta")
+#write fasta file to working directory
+write(sequences_16S_2,file="sequences_16S_101-200.fasta")
 
+#16S 201:300
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_16S_3,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_16S_3 <- entrez_fetch(id = accession_numbers_16S_3,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_16S_3,file="sequences_16S_201-300.fasta")
+
+#16S 301:400
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_16S_4,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_16S_4 <- entrez_fetch(id = accession_numbers_16S_4,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_16S_4,file="sequences_16S_301-400.fasta")
+
+#16S 401:500
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_16S_5,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_16S_5 <- entrez_fetch(id = accession_numbers_16S_5,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_16S_5,file="sequences_16S_401-500.fasta")
+
+#16S 501:600
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_16S_6,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_16S_6 <- entrez_fetch(id = accession_numbers_16S_6,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_16S_6,file="sequences_16S_501-600.fasta")
+
+#16S 601:700
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_16S_7,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_16S_7 <- entrez_fetch(id = accession_numbers_16S_7,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_16S_7,file="sequences_16S_601-700.fasta")
+
+#16S 701:800
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_16S_8,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_16S_8 <- entrez_fetch(id = accession_numbers_16S_8,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_16S_8,file="sequences_16S_701-800.fasta")
+
+#16S 801:900
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_16S_9,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_16S_9 <- entrez_fetch(id = accession_numbers_16S_9,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_16S_9,file="sequences_16S_801-900.fasta")
+
+#16S 901:1000
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_16S_10,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_16S_10 <- entrez_fetch(id = accession_numbers_16S_10,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_16S_10,file="sequences_16S_901-1000.fasta")
+
+#16S 1001:1100
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_16S_11,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_16S_11 <- entrez_fetch(id = accession_numbers_16S_11,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_16S_11,file="sequences_16S_1001-1100.fasta")
+
+#16S 1101:1200
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_16S_12,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_16S_12 <- entrez_fetch(id = accession_numbers_16S_12,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_16S_12,file="sequences_16S_1101-1200.fasta")
+
+#16S 1201:1300
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_16S_13,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_16S_13 <- entrez_fetch(id = accession_numbers_16S_13,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_16S_13,file="sequences_16S_1201-1300.fasta")
+
+#16S 1301:1400
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_16S_14,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_16S_14 <- entrez_fetch(id = accession_numbers_16S_14,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_16S_14,file="sequences_16S_1301-1400.fasta")
+
+
+#23S - 1:30
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_23S_list,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_23S_1 <- entrez_fetch(id = accession_numbers_23S_list,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_23S_1,file="sequences_23S_1-30.fasta")
+
+
+#atpD 1:100
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_atpD_1,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_atpD_1 <- entrez_fetch(id = accession_numbers_atpD_1,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_atpD_1,file="sequences_atpD_1-100.fasta")
+
+#atpD 101:200
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_atpD_2,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_atpD_2 <- entrez_fetch(id = accession_numbers_atpD_2,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_atpD_2,file="sequences_atpD_101-200.fasta")
+
+#atpD 201:300
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_atpD_3,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_atpD_3 <- entrez_fetch(id = accession_numbers_atpD_3,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_atpD_3,file="sequences_atpD_201-300.fasta")
+
+#cpn60 - 1:24
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_cpn60_list,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_cpn60_1 <- entrez_fetch(id = accession_numbers_cpn60_list,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_cpn60_1,file="sequences_cpn60_1-24.fasta")
+
+#dnaK - 1:86
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_dnaK_list,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_dnaK_1 <- entrez_fetch(id = accession_numbers_dnaK_list,
+                                  db = "nuccore", 
+                                  rettype = "fasta")
+#write fasta file to working directory
+write(sequences_dnaK_1,file="sequences_dnaK_1-86.fasta")
+
+#glnA - 1:36
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_glnA_list,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_glnA_1 <- entrez_fetch(id = accession_numbers_glnA_list,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_glnA_1,file="sequences_glnA_1-36.fasta")
+
+#glnB - 1:37
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_glnB_list,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_glnB_1 <- entrez_fetch(id = accession_numbers_glnB_list,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_glnB_1,file="sequences_glnB_1-37.fasta")
+
+#glnII - 1:100
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_glnII_1,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_glnII_1 <- entrez_fetch(id = accession_numbers_glnII_1,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_glnII_1,file="sequences_glnII_1-100.fasta")
+
+#glnII - 101:106
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_glnII_2,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_glnII_2 <- entrez_fetch(id = accession_numbers_glnII_2,
+                                  db = "nuccore", 
+                                  rettype = "fasta")
+#write fasta file to working directory
+write(sequences_glnII_2,file="sequences_glnII_100-106.fasta")
+
+#gltA - 1:36
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_gltA_list,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_gltA_1 <- entrez_fetch(id = accession_numbers_gltA_list,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_gltA_1,file="sequences_gltA_1-36.fasta")
+
+#gyrB - 1:67
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_gyrB_list,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_gyrB_1 <- entrez_fetch(id = accession_numbers_gyrB_list,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_gyrB_1,file="sequences_gyrB_1-67.fasta")
+
+#ITS 1:100
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_ITS_1,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_ITS_1 <- entrez_fetch(id = accession_numbers_ITS_1,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_ITS_1,file="sequences_ITS_1-100.fasta")
+
+#ITS 101:200
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_ITS_2,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_ITS_2 <- entrez_fetch(id = accession_numbers_ITS_2,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_ITS_2,file="sequences_ITS_101-200.fasta")
+
+#ITS 201:244
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_ITS_3,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_ITS_3 <- entrez_fetch(id = accession_numbers_ITS_3,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_ITS_3,file="sequences_ITS_201-244.fasta")
+
+#nifD - 1:41
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_nifD_list,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_nifD_1 <- entrez_fetch(id = accession_numbers_nifD_list,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_nifD_1,file="sequences_nifD_1-40.fasta")
+
+#nifH 1:100
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_nifH_1,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_nifH_1 <- entrez_fetch(id = accession_numbers_nifH_1,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_nifH_1,file="sequences_nifH_1-100.fasta")
+
+#nifH 101:200
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_nifH_2,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_nifH_2 <- entrez_fetch(id = accession_numbers_nifH_2,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_nifH_2,file="sequences_nifH_101-200.fasta")
+
+#nifH 201:300
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_nifH_3,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_nifH_3 <- entrez_fetch(id = accession_numbers_nifH_3,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_nifH_3,file="sequences_nifH_201-300.fasta")
+
+#nifH 301:339
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_nifH_4,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_nifH_4 <- entrez_fetch(id = accession_numbers_nifH_4,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_nifH_4,file="sequences_nifH_301-339.fasta")
+
+#nifHD - 1:1
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_nifHD_list,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_nifHD_1 <- entrez_fetch(id = accession_numbers_nifHD_list,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_nifHD_1,file="sequences_nifHD_1.fasta")
+
+#nifD - 1:41
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_nifD_list,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_nifD_1 <- entrez_fetch(id = accession_numbers_nifD_list,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_nifD_1,file="sequences_nifD_1-40.fasta")
+
+#nodA 1:100
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_nodA_1,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_nodA_1 <- entrez_fetch(id = accession_numbers_nodA_1,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_nodA_1,file="sequences_nodA_1-100.fasta")
+
+#nodA 101:200
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_nodA_2,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_nodA_2 <- entrez_fetch(id = accession_numbers_nodA_2,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_nodA_2,file="sequences_nodA_101-200.fasta")
+
+#nodA 201:254
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_nodA_3,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_nodA_3 <- entrez_fetch(id = accession_numbers_nodA_3,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_nodA_3,file="sequences_nodA_201-254.fasta")
+
+#nodC 1:100
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_nodC_1,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_nodC_1 <- entrez_fetch(id = accession_numbers_nodC_1,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_nodC_1,file="sequences_nodC_1-100.fasta")
+
+#nodC 101:200
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_nodC_2,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_nodC_2 <- entrez_fetch(id = accession_numbers_nodC_2,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_nodC_2,file="sequences_nodC_101-200.fasta")
+
+#nodC 201:300
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_nodC_3,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_nodC_3 <- entrez_fetch(id = accession_numbers_nodC_3,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_nodC_3,file="sequences_nodC_201-300.fasta")
+
+#nodC 301:400
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_nodC_4,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_nodC_4 <- entrez_fetch(id = accession_numbers_nodC_4,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_nodC_4,file="sequences_nodC_301-400.fasta")
+
+#nodC 401:500
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_nodC_5,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_nodC_5 <- entrez_fetch(id = accession_numbers_nodC_5,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_nodC_5,file="sequences_nodC_401-500.fasta")
+
+#nodD - 1:14
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_nodD_list,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_nodD_1 <- entrez_fetch(id = accession_numbers_nodD_list,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_nodD_1,file="sequences_nodD_1-14.fasta")
+
+#nodZ - 1:17
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_nodZ_list,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_nodZ_1 <- entrez_fetch(id = accession_numbers_nodZ_list,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_nodZ_1,file="sequences_nodZ_1-17.fasta")
+
+#noeI - 1:18
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_noeI_list,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_noeI_1 <- entrez_fetch(id = accession_numbers_noeI_list,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_noeI_1,file="sequences_noeI_1-18.fasta")
+
+#recA 1:100
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_recA_1,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_recA_1 <- entrez_fetch(id = accession_numbers_recA_1,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_recA_1,file="sequences_recA_1-100.fasta")
+
+#recA 101:200
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_recA_2,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_recA_2 <- entrez_fetch(id = accession_numbers_recA_2,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_recA_2,file="sequences_recA_101-200.fasta")
+
+#recA 201:300
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_recA_3,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_recA_3 <- entrez_fetch(id = accession_numbers_recA_3,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_recA_3,file="sequences_recA_201-300.fasta")
+
+#recA 301:400
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_recA_4,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_recA_4 <- entrez_fetch(id = accession_numbers_recA_4,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_recA_4,file="sequences_recA_301-400.fasta")
+
+#nodC 401:500
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_recA_5,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_recA_5 <- entrez_fetch(id = accession_numbers_recA_5,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_recA_5,file="sequences_recA_401-500.fasta")
+
+#recA 501:573
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_recA_6,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_recA_6 <- entrez_fetch(id = accession_numbers_recA_6,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_recA_6,file="sequences_recA_501-573.fasta")
+
+#rpoB - 1:39
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_rpoB_list,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_rpoB_1 <- entrez_fetch(id = accession_numbers_rpoB_list,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_rpoB_1,file="sequences_rpoB_1-39.fasta")
+
+#rrs - 1:9
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_rrs_list,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_rrs_1 <- entrez_fetch(id = accession_numbers_rrs_list,
+                                 db = "nuccore", 
+                                 rettype = "fasta")
+#write fasta file to working directory
+write(sequences_rrs_1,file="sequences_rrs_1-9.fasta")
+
+#thrC - 1:36
+#connect to GenBank database and download the sequence
+read.GenBank(accession_numbers_thrC_list,species.name=TRUE)
+#put sequence into new dataframe using fasta format
+sequences_thrC_1 <- entrez_fetch(id = accession_numbers_thrC_list,
+                                db = "nuccore", 
+                                rettype = "fasta")
+#write fasta file to working directory
+write(sequences_thrC_1,file="sequences_thrC_1-36.fasta")
 
 #### Counting number of papers,species, etc ####
 
@@ -643,5 +1069,4 @@ Anova(Mixed_Model_Rhiz_Status_Strain_rich,type = 2)
 
 summary (Mixed_Model_Rhiz_Status_symbionts<- lmer(symbionts_Mean ~ Plant_status + (1 | species_status_n) + (1 | num_nod_Mean), data = (Rhiz_symbionts_Nod_Num)))
 Anova(Mixed_Model_Rhiz_Status_symbionts,type = 2)
-
 
