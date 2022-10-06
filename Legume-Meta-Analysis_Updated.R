@@ -26,7 +26,7 @@ WoS_Abstracts_2022<-read.csv("Methods/Web_of_Science_10_05_Search_Results.csv")
 References_Screening_Ready<-effort_initialize(WoS_Abstracts_2022)
 
 #Create dataframe with names of reviewers
-theTeam<-c("Kathryn","Kim","Smriti")
+theTeam<-c("Kim","Smriti","Kathryn")
 
 #Randomly delegate screening efforts between the team of reviewers evenly and then save these as seperate files to the directory given
 References_unscreened<-effort_distribute(References_Screening_Ready,reviewers=theTeam, save_split = TRUE,directory = "C:/Users/kjbloodw/OneDrive - UNCG/Invasive Legume Meta-Analysis/Methods/2022_Reference_Screening")
@@ -34,6 +34,7 @@ References_unscreened<-effort_distribute(References_Screening_Ready,reviewers=th
 #### Screen Abstracts - START HERE ####
 #KIM AND SMRITI START HERE: Run only the line that applies to you (has your csv file in it)
 
+#Kathryn's papers to review
 abstract_screener(file=file.choose("C:/Users/kjbloodw/OneDrive - UNCG/Invasive Legume Meta-Analysis/Methods/2022_Reference_Screening/effort_Kathryn.csv"),
                   aReviewer = "Kathryn",
                   reviewerColumnName = "REVIEWERS",
@@ -51,4 +52,44 @@ abstract_screener(file=file.choose("C:/Users/kjbloodw/OneDrive - UNCG/Invasive L
                   highlightColor = "powderblue",
                   highlightKeywords = c("legume","native","invasive","non-native","non native","nonnative","rhizobia")
 )
+
+#Smriti's papers to review
+abstract_screener(file=file.choose("C:/Users/kjbloodw/OneDrive - UNCG/Invasive Legume Meta-Analysis/Methods/2022_Reference_Screening/effort_Smriti.csv"),
+                  aReviewer = "Smriti",
+                  reviewerColumnName = "REVIEWERS",
+                  unscreenedColumnName = "INCLUDE",
+                  unscreenedValue = "not vetted",
+                  abstractColumnName = "Abstract",
+                  titleColumnName = "Article.Title",
+                  browserSearch = "https://www.google.com/search?q=",
+                  fontSize = 13,
+                  windowWidth = 70,
+                  windowHeight = 16,
+                  theButtons = c("YES","maybe","NO"),
+                  keyBindingToButtons = c("y","m","n"),
+                  buttonSize = 10,
+                  highlightColor = "powderblue",
+                  highlightKeywords = c("legume","native","invasive","non-native","non native","nonnative","rhizobia")
+)
+
+#Kim's papers to review
+abstract_screener(file=file.choose("C:/Users/kjbloodw/OneDrive - UNCG/Invasive Legume Meta-Analysis/Methods/2022_Reference_Screening/effort_Kim.csv"),
+                  aReviewer = "Kim",
+                  reviewerColumnName = "REVIEWERS",
+                  unscreenedColumnName = "INCLUDE",
+                  unscreenedValue = "not vetted",
+                  abstractColumnName = "Abstract",
+                  titleColumnName = "Article.Title",
+                  browserSearch = "https://www.google.com/search?q=",
+                  fontSize = 13,
+                  windowWidth = 70,
+                  windowHeight = 16,
+                  theButtons = c("YES","maybe","NO"),
+                  keyBindingToButtons = c("y","m","n"),
+                  buttonSize = 10,
+                  highlightColor = "powderblue",
+                  highlightKeywords = c("legume","native","invasive","non-native","non native","nonnative","rhizobia")
+)
+
+
 
