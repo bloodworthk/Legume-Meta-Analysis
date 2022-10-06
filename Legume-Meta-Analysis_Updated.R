@@ -53,7 +53,7 @@ abstract_screener(file=file.choose("C:/Users/kjbloodw/OneDrive - UNCG/Invasive L
                   highlightKeywords = c("legume","native","invasive","non-native","non native","nonnative","rhizobia")
 )
 
-#Smriti's papers to review
+#Smriti's papers to review -- before starting change file path for your computer
 abstract_screener(file=file.choose("C:/Users/kjbloodw/OneDrive - UNCG/Invasive Legume Meta-Analysis/Methods/2022_Reference_Screening/effort_Smriti.csv"),
                   aReviewer = "Smriti",
                   reviewerColumnName = "REVIEWERS",
@@ -72,7 +72,7 @@ abstract_screener(file=file.choose("C:/Users/kjbloodw/OneDrive - UNCG/Invasive L
                   highlightKeywords = c("legume","native","invasive","non-native","non native","nonnative","rhizobia")
 )
 
-#Kim's papers to review
+#Kim's papers to review -- before starting change file path for your computer
 abstract_screener(file=file.choose("C:/Users/kjbloodw/OneDrive - UNCG/Invasive Legume Meta-Analysis/Methods/2022_Reference_Screening/effort_Kim.csv"),
                   aReviewer = "Kim",
                   reviewerColumnName = "REVIEWERS",
