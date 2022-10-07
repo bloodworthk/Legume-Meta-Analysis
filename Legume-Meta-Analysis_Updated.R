@@ -76,7 +76,7 @@ abstract_screener(file=file.choose("C:/Users/kjbloodw/OneDrive - UNCG/Invasive L
 )
 
 #Kim's papers to review -- before starting change file path for your computer
-abstract_screener(file=file.choose("C:/Users/kjbloodw/OneDrive - UNCG/Invasive Legume Meta-Analysis/Methods/2022_Reference_Screening/effort_Kim.csv"),
+abstract_screener(file=file.choose("C:/Users/kjkomatsu/UNCG/Kathryn Bloodworth - Invasive Legume Meta-Analysis/Methods/2022_Reference_Screening/effort_Kim.csv"),
                   aReviewer = "Kim",
                   reviewerColumnName = "REVIEWERS",
                   unscreenedColumnName = "INCLUDE",
