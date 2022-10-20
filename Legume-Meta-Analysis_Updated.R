@@ -92,4 +92,7 @@ abstract_screener(file=file.choose("C:/Users/kjbloodw/OneDrive - UNCG/Invasive L
 )
 
 
+#Remerge files from all reviewers (do this if reviewers use data frames in the working directory to vet the references -- each reviewer must change the column "Include" to either a YES or NO)
+References_screened <- effort_merge(directory = "C:/Users/kjbloodw/OneDrive - UNCG/Invasive Legume Meta-Analysis/Methods/2022_Reference_Screening")
 
+References_screened[c("STUDY_ID", "REVIEWERS_A", "INCLUDE_A", "REVIEWERS_B", "INCLUDE_B")]
