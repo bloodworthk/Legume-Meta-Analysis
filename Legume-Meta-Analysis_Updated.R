@@ -10,6 +10,9 @@ setwd("C:/Users/kjbloodw/OneDrive - UNCG/Invasive Legume Meta-Analysis")
 #Kim's desktop
 setwd('C:\\Users\\kjkomatsu\\UNCG\\Kathryn Bloodworth - Invasive Legume Meta-Analysis')
 
+#Smriti's desktop
+setwd("C:/Users/Smriti/OneDrive - Johns Hopkins/Invasive Legume Meta-Analysis")
+
 #### Install and load in packages ####
 #If you have a PC just installing and loading metagear should allow you to run everything needed if you allow it to install needed packages
 #If you have a mac, this will be different and I have a series of other packages that will need to be installed and run. Let me know if you need this.
