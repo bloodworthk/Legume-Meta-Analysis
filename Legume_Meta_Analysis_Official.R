@@ -12,22 +12,26 @@ library(tidyverse)
 #### Set Working Directory ####
 
 #Bloodworth - Mac
-setwd("~/Library/CloudStorage/Box-Box/Projects/Invasive Legume Meta-Analysis/data")
+setwd("/Volumes/GoogleDrive/My Drive/Projects/Legume-Meta Analysis")
 
-#Bloodworth - PC
-setwd("/Users/kjbloodw/Box-Box/Projects/Invasive Legume Meta-Analysis/data")
 
 #### Read in Data ####
-accession_numbers<-read.csv("legume_strain diversity_meta analysis_strain sequences.csv",stringsAsFactors = FALSE,na.strings="")
 
-Manuscript_Info<-read.csv("legume_strain diversity_meta analysis_paper information.csv")
+#Read in paper information and add NA for anywhere that has a blank
+Manuscript_Info<-read.csv("Data/legume_strain diversity_meta analysis_paper information.csv")
 Manuscript_Info[Manuscript_Info==""]<-NA
 
-Plant_Associations<-read.csv("legume_strain diversity_meta analysis_plant associations_edited names_presence absence.csv")
+#Read in plant association information and add NA for anywhere that has a blank
+Plant_Associations<-read.csv("Data/legume_strain diversity_meta analysis_plant associations_edited names_presence absence.csv")
 Plant_Associations[Plant_Associations==""]<-NA
 
-Plant_Data<-read.csv("legume_strain diversity_meta analysis_plant data.csv")
+#Read in plant data info and add NA for anywhere that has a blank
+Plant_Data<-read.csv("Data/legume_strain diversity_meta analysis_plant data.csv")
 Plant_Data[Plant_Data==""]<-NA
 
-Strain_Diversity<-read.csv("legume_strain diversity_meta analysis_strain sequences.csv")
+#Read in strain diversity info and add NA for anywhere that has a blank
+Strain_Diversity<-read.csv("Data/legume_strain diversity_meta analysis_strain sequences.csv")
 Strain_Diversity[Strain_Diversity==""]<-NA
+
+#Read in strain sequence information
+accession_numbers<-read.csv("Data/legume_strain diversity_meta analysis_strain sequences.csv",stringsAsFactors = FALSE,na.strings="")
