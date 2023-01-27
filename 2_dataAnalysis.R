@@ -65,7 +65,7 @@ theme_update(axis.title.x=element_text(size=40, vjust=-0.35, margin=margin(t=15)
 
 ## Determine number of papers assessed (327)
 Manuscript_Info%>%
-  #Removing papers that had comments saying it was a review or irrelevent or didnt exist
+  #Removing papers that had comments saying it was a review or irrelevant or didnt exist
   filter(paper_id!=313 & paper_id!=312 & paper_id!=317) %>% 
   group_by(paper_id, author, year)%>%
   unique()%>%
@@ -115,7 +115,7 @@ ggplot(Introduced_Native_Number_Graph,aes(x=Plant_status,y=plant_status_counts,f
   #Label the x-axis "Watershed"
   xlab("Plant Species Status")+
   #Label the y-axis "Species Richness"
-  ylab("Number of Species")+
+  ylab("Number of Observations")+
   expand_limits(y=1000)+
   #Fill the bar graphs with grey and white according and label them "Inside Fence" and "Outside Fence"
   scale_fill_manual(values=c("darkslategrey","cadetblue4"), labels=c("Native", "Non-Native"))  
@@ -222,7 +222,6 @@ ggplot(Average_growth_form_Graph,aes(x=growth_form,y=symbionts_Mean,fill=growth_
 summary(Mixed_Model_Rhiz_Status_Growth_Form<- lmer(diversity_sum ~ growth_form + (1|num_nodules), data = Rhizobial_Associations_GF_Condensed)) #
 anova(Mixed_Model_Rhiz_Status_Growth_Form,type=2) 
 
-#t.test(Rhizobial_Associations_GF_Condensed$diversity_sum~Rhizobial_Associations_GF_Condensed$growth_form)
 
 #### Rhizobial Associates by Annual/Perennial  ####
 
