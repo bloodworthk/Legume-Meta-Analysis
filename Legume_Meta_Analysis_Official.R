@@ -16,6 +16,9 @@ library(tidyverse)
 #Bloodworth - Mac
 setwd("/Volumes/GoogleDrive/My Drive/Projects/Legume-Meta Analysis")
 
+#Bloodworth - PC
+setwd("G:/My Drive/Projects/Legume-Meta Analysis")
+
 
 #### Read in Data ####
 
