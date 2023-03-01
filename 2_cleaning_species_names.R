@@ -2,6 +2,7 @@
 #Authors: Kathryn Bloodworth, Smriti Pehim Limbu, Kim Komatsu
 
 library(Taxonstand)
+#install.packages("WorldFlora")
 library(WorldFlora)
 library(tidyverse)
 
@@ -25,7 +26,7 @@ full.list <- read.csv ("legume_old_names.csv") %>%
   select(-genus_species) %>% 
   unite(col=genus_species, c(genus, species), sep=' ')
 
-genus.species <- full.list %>% 
+genus.species <- read.csv ("legume_old_names.csv") %>% 
   select(genus, species) %>% 
   unite(col=genus_species, c(genus, species), sep=' ')
 
@@ -48,5 +49,5 @@ clean.list.annotated <- full.list %>%
 
 #### write data to file ####
 
-write.csv(clean.list.annotated, "legume_clean_names.csv", row.names=F)
+write.csv(clean.list.annotated, "legume_clean_names_updated.csv", row.names=F)
 
