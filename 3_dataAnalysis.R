@@ -16,6 +16,9 @@ library(tidyverse)
 #Bloodworth - Mac
 setwd("/Volumes/GoogleDrive/My Drive/Projects/Legume-Meta Analysis")
 
+#Bloodworth - PC
+setwd("G:/My Drive/Projects/Legume-Meta Analysis")
+
 
 #### Read in Data ####
 
@@ -25,16 +28,29 @@ Manuscript_Info<-read.csv("Data/legume_strain diversity_meta analysis_paper info
   mutate_all(~na_if(., 999))
 Manuscript_Info[Manuscript_Info==""]<-NA
 
+#Read in clean species file and remove extra rows and place NAs anywhere that has no information
+Clean_Species<-read.csv("Data/legume_clean_names.csv") %>% 
+  filter(old_genus_species!="") %>% 
+  separate(old_genus_species,c("genus","species","subspecies","extra"),sep=" ") %>% 
+  unite(col=genus_species, c(genus,species,subspecies,extra), sep='_',na.rm=TRUE) %>% 
+  mutate(genus_species=ifelse(genus_species=="Acacia_mangium_x_auriculiformis","Acacia_mangium x auriculiformis",ifelse(genus_species=="Acacia_nilotica_adansonii","Acacia_nilotica adansonii",ifelse(genus_species=="Acacia_nilotica_adansonii","Acacia_nilotica adansonii",ifelse(genus_species== "Acacia_nilotica_tomentosa", "Acacia_nilotica tomentosa",ifelse(genus_species=="Acacia_tortillis_spp._heteracantha","Acacia_tortillis spp. heteracantha",ifelse(genus_species=="Camptotheca_acuminata_Decne","Camptotheca_acuminata Decne",ifelse(genus_species=="Hedysarum_confertum_Desf.","Hedysarum_confertum Desf.",ifelse(genus_species=="Hedysarum_coronarium_L._Leguminosae","Hedysarum_coronarium L. Leguminosae",ifelse(genus_species=="Lespedeza_bicolor_for._alba","Lespedeza_bicolor for. alba",ifelse(genus_species=="Lespedeza_maximowiezzi_var._tomentella","Lespedeza_maximowiezzi var. tomentella",ifelse(genus_species=="Oxytropis_ochrocephala_Bunge","Oxytropis_ochrocephala Bunge",ifelse(genus_species=="Robinia_pseudoacacia_L.","Robinia_pseudoacacia L.",ifelse(genus_species=="phaseolus_vulgaris","Phaseolus_vulgaris",ifelse(genus_species=="Stylosanthes_ viscosa","Stylosanthes_viscosa",ifelse(genus_species=="Teline__canariensis","Teline_canariensis",ifelse(genus_species=="Teline__stenopetala","Teline_stenopetala",ifelse(genus_species=="Desmodium__multiflorum","Desmodium_multiflorum",genus_species)))))))))))))))))) %>% 
+  rename(Clean_Species_notes=notes)
+Clean_Species[Clean_Species==""]<-NA
+
 #Read in plant association information and add NA for anywhere that has a blank
 Plant_Associations<-read.csv("Data/legume_strain diversity_meta analysis_plant associations_edited names_presence absence.csv") %>% 
   #change all 999 to NAs
-  mutate_all(~na_if(., 999))
+  mutate_all(~na_if(., 999)) %>% 
+  left_join(Clean_Species) %>% 
+  select(genus_species,new_name,1:316)
 Plant_Associations[Plant_Associations==""]<-NA
 
 #Read in plant data info and add NA for anywhere that has a blank
 Plant_Data<-read.csv("Data/legume_strain diversity_meta analysis_plant data.csv") %>% 
   #change all 999 to NAs
-  mutate_all(~na_if(., 999))
+  mutate_all(~na_if(., 999)) %>% 
+  left_join(Clean_Species) %>% 
+  select(genus_species,new_name,1:32)
 Plant_Data[Plant_Data==""]<-NA
 
 #Read in strain diversity info and add NA for anywhere that has a blank
@@ -44,7 +60,7 @@ Strain_Diversity<-read.csv("Data/legume_strain diversity_meta analysis_strain se
 Strain_Diversity[Strain_Diversity==""]<-NA
 
 #Read in strain sequence information
-accession_numbers<-read.csv("Data/legume_strain diversity_meta analysis_strain sequences.csv",stringsAsFactors = FALSE,na.strings="") %>% 
+accession_numbers<-read.csv("Data/legume_strain diversity_meta analysis_strain sequences.csv",stringsAsFactors = FALSE,na.strings="") %>%
   #change all 999 to NAs
   mutate_all(~na_if(., 999))
 
@@ -62,7 +78,7 @@ theme_update(axis.title.x=element_text(size=40, vjust=-0.35, margin=margin(t=15)
 
 ## Determine number of papers assessed (327)
 Manuscript_Info%>%
-  #Removing papers that had comments saying it was a review or irrelevent or didnt exist
+  #Removing papers that had comments saying it was a review or irrelevant or didnt exist
   filter(paper_id!=313 & paper_id!=312 & paper_id!=317) %>% 
   group_by(paper_id, author, year)%>%
   unique()%>%
@@ -112,7 +128,7 @@ ggplot(Introduced_Native_Number_Graph,aes(x=Plant_status,y=plant_status_counts,f
   #Label the x-axis "Watershed"
   xlab("Plant Species Status")+
   #Label the y-axis "Species Richness"
-  ylab("Number of Species")+
+  ylab("Number of Observations")+
   expand_limits(y=1000)+
   #Fill the bar graphs with grey and white according and label them "Inside Fence" and "Outside Fence"
   scale_fill_manual(values=c("darkslategrey","cadetblue4"), labels=c("Native", "Non-Native"))  
@@ -219,7 +235,6 @@ ggplot(Average_growth_form_Graph,aes(x=growth_form,y=symbionts_Mean,fill=growth_
 summary(Mixed_Model_Rhiz_Status_Growth_Form<- lmer(diversity_sum ~ growth_form + (1|num_nodules), data = Rhizobial_Associations_GF_Condensed)) #
 anova(Mixed_Model_Rhiz_Status_Growth_Form,type=2) 
 
-#t.test(Rhizobial_Associations_GF_Condensed$diversity_sum~Rhizobial_Associations_GF_Condensed$growth_form)
 
 #### Rhizobial Associates by Annual/Perennial  ####
 
