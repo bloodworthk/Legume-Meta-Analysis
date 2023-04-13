@@ -8,13 +8,14 @@ Authors: Kimberly Komatsu, Kathryn Bloodworth, Smriti Pehim Limbu
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # load packages
-pacman::p_load(ggplot2, lmerTest, tidyverse, dplyr)
-
+pacman::p_load(ggplot2, lmerTest, tidyverse, dplyr, readr)
+# set working directory for Kathryn - mac
+knitr::opts_knit$set(root.dir = '/Volumes/GoogleDrive/My Drive/Projects/Legume-Meta Analysis/Data')
 ```
 
 ###Starting a new analysis and this chunk is for loading files, Plant_Associations is the cleaned file
 ```{r}
-Clean_Species<-read.csv("legume_clean_names.csv") %>% 
+Clean_Species<-read_csv("legume_clean_names.csv") %>% 
   filter(old_genus_species!="") %>% 
   separate(old_genus_species,c("genus","species","subspecies","extra"),sep=" ") %>% 
   unite(col=genus_species, c(genus,species,subspecies,extra), sep='_',na.rm=TRUE)
@@ -24,7 +25,13 @@ Plant_Associations<-read.csv("legume_strain diversity_meta analysis_plant associ
 
 ##Now filtering out row crop and 999, 0 and 1 presence and absence and joining clean_species
 
-Plant_Associations <- Plant_Associations%>% left_join(Clean_Species) %>% filter(cultivation.status!="row crop", genus_species!="999", presence_absence=="1", plant_status!="999")
+Plant_Associations_Clean <- Plant_Associations %>%
+  left_join(Clean_Species) %>%
+  filter(cultivation.status!="row crop", genus_species!="999", presence_absence=="1", plant_status!="999", species!="sp",species!="spp",species!="sp.",paper_id!=142, plant_status!="extinct") %>% 
+  select(-introduced,-invasive,-cultivated) %>% 
+  rename(paper_plant_status=plant_status) %>% 
+  mutate(global_plant_status=ifelse((exo_NA+exo_SA+exo_AU+exo_AS+exo_EU+exo_AF)>0,1,0))
+
 colnames(Plant_Associations)
 
 ```
@@ -33,9 +40,15 @@ colnames(Plant_Associations)
 
 ```{r}
 #convert 999 in num_nodules to NA
-Plant_Associations_num <- Plant_Associations %>% mutate(ifelse(num_nodules=="999", NA, num_nodules))
+Plant_Associations_num <- Plant_Associations_Clean %>%
+  mutate(num_nodules=ifelse(num_nodules=="999", NA, num_nodules)) %>% 
+  mutate(num_plants=ifelse(num_plants=="999", NA, num_plants))
 
-native_nonnative.strains <- Plant_Associations_num %>% group_by(genus_species,plant_status,rhizobia_sp) %>% summarise(presence=max(presence_absence), total_nodules=sum(num_nodules)) %>% ungroup()
+# create new column where we add up the total number of nodules across plant species, plant status (within paper) and rhizobia species so that we can use total_nodules in future statistical models
+native_nonnative.strains <- Plant_Associations_num %>%
+  group_by(genus_species,paper_plant_status,rhizobia_sp) %>%
+  summarise(total_nodules=sum(num_nodules)) %>%
+  ungroup()
 
 ```
 ## Loading strain diversity and sequence information
@@ -58,7 +71,8 @@ Manuscript_Info<-read.csv("legume_strain diversity_meta analysis_paper informati
 Manuscript_Info[Manuscript_Info==""]<-NA
 
 #Removing papers that had comments saying it was a review or irrelevant or didnt exist
-Manuscript_Info%>% filter(paper_id!=313 & paper_id!=312 & paper_id!=317& paper_id!=140) %>% 
+#calculation the number of papers for the study
+Manuscript_Info %>% filter(paper_id!=313 & paper_id!=312 & paper_id!=317& paper_id!=140) %>% 
   group_by(paper_id, author, year)%>%
   unique()%>%
   summarise(num_papers=length(paper_id))%>%
@@ -66,21 +80,21 @@ Manuscript_Info%>% filter(paper_id!=313 & paper_id!=312 & paper_id!=317& paper_i
   summarise(papers=length(paper_id))%>%
   summarise(num_papers=sum(papers))
 
-## Determine number plant species (696), clean names merged and now we have 650
-Plant_Associations%>%
+## Determine number plant species (555)
+Plant_Associations_Clean %>%
   group_by(new_name)%>%
   unique()%>%
   summarise(num_species=length(new_name))%>%
   ungroup()%>%
   summarise(num_species=length(new_name))
 
-## Determine number of countries assessed (85), now it is 78
-Plant_Associations%>%
-  group_by(sample_country)%>%
-  unique()%>%
-  summarise(num_countries=length(sample_country))%>%
-  ungroup()%>% 
-  summarise(num_countries=length(sample_country))
+## Determine number of countries 85 -- this is not an accurate number (and we don't think it matters)
+# Plant_Associations%>%
+#   group_by(sample_country)%>%
+#   unique()%>%
+#   summarise(num_countries=length(sample_country))%>%
+#   ungroup()%>% 
+#   summarise(num_countries=length(sample_country))
 ```
 #### Basic Data Analyses ####
 
@@ -88,21 +102,15 @@ Plant_Associations%>%
 ```{r}
 
 # Create data frame with native vs. introduced species
-Introduced_native_Number<-Plant_Associations%>%
-  mutate(Plant_status=ifelse(plant_status=="introduced","non-native",ifelse(plant_status=="invasive","non-native",ifelse(plant_status=="native","native", ifelse(plant_status=="extinct","extinct",ifelse(plant_status=="introduced-native","non-native",ifelse(plant_status==" native","native",plant_status)))))))%>%
-  group_by(Plant_status)%>%
+Introduced_native_Number<- Plant_Associations_Clean%>%
+  mutate(paper_plant_status=ifelse(paper_plant_status %in% c("introduced","invasive","introduced-native"),"non-native",ifelse(paper_plant_status==" native","native",paper_plant_status))) %>%
+  group_by(paper_plant_status)%>%
   unique()%>%
-  summarise(plant_status_counts=length(Plant_status))%>%
+  summarise(plant_status_counts=length(paper_plant_status))%>%
   ungroup()
 
-# Make a graph for non-native vs native, also filtering 999
-Introduced_Native_Number_Graph<-Introduced_native_Number%>%
-  na.omit()%>%
-  filter(Plant_status!="extinct") 
-
-
 #Make graph showing number of species and plant species status
-ggplot(Introduced_Native_Number_Graph,aes(x=Plant_status,y=plant_status_counts,fill=Plant_status))+
+ggplot(Introduced_native_Number,aes(x=paper_plant_status,y=plant_status_counts,fill=paper_plant_status))+
   #Make a bar graph where the height of the bars is equal to the data (stat=identity) and you preserve the vertical position while adjusting the horizontal(position_dodge), and outline the bars with the color black.
   geom_bar(stat="identity", position=position_dodge(),color="black")+
   #make error bars using the Standard error from the mean and place them at 0.9 with a width of 0.2
