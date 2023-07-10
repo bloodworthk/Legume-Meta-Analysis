@@ -1,11 +1,11 @@
 ---
-title: "3b_dataanalysis"
+title: "3a-Question1-R-legume"
 output: html_document
 date: "2023-03-17"
-Authors: Kimberly Komatsu, Kathryn Bloodworth, Smriti Pehim Limbu
+Authors: Kathryn Bloodworth, Smriti Pehim Limbu, Kimberly Komatsu
 ---
 
-```{r setup, include=FALSE}
+```{r load working directory & packages, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # load packages
 pacman::p_load(ggplot2, lmerTest, tidyverse, dplyr, readr)
@@ -13,8 +13,8 @@ pacman::p_load(ggplot2, lmerTest, tidyverse, dplyr, readr)
 knitr::opts_knit$set(root.dir = '/Volumes/GoogleDrive/My Drive/Projects/Legume-Meta Analysis/Data')
 ```
 
-###Starting a new analysis and this chunk is for loading files, Plant_Associations is the cleaned file
-```{r}
+### Starting a new analysis and this chunk is for loading files, Plant_Associations is the cleaned file
+```{r Load in Plant Associations and clean}
 Clean_Species<-read_csv("legume_clean_names.csv") %>% 
   filter(old_genus_species!="") %>% 
   separate(old_genus_species,c("genus","species","subspecies","extra"),sep=" ") %>% 
@@ -24,17 +24,76 @@ Clean_Species<-read_csv("legume_clean_names.csv") %>%
 Plant_Associations<-read.csv("legume_strain diversity_meta analysis_plant associations_edited names_presence absence.csv") %>% pivot_longer(names_to = "rhizobia_sp", values_to = "presence_absence", cols=Bradyrhizobium_nitroreducens:Paraburkholderia_caribensis)
 
 ##Now filtering out row crop and 999, 0 and 1 presence and absence and joining clean_species
-
 Plant_Associations_Clean <- Plant_Associations %>%
   left_join(Clean_Species) %>%
   filter(cultivation.status!="row crop", genus_species!="999", presence_absence=="1", plant_status!="999", species!="sp",species!="spp",species!="sp.",paper_id!=142, plant_status!="extinct") %>% 
+filter(!(sample_country %in% c("Japan-China","Japan_China","Kenya-Sudan","Czech_Republic-France-Georgia-Hungary-Italy-Romania-Spain","Senegal-Mauritania-Tunisia-Burundi","Malawi-Zambia-Kenya","Brazil-Venezuela"))) %>% 
   select(-introduced,-invasive,-cultivated) %>% 
   rename(paper_plant_status=plant_status) %>% 
   mutate(global_plant_status=ifelse((exo_NA+exo_SA+exo_AU+exo_AS+exo_EU+exo_AF)>0,1,0))
 
-colnames(Plant_Associations)
+colnames(Plant_Associations_Clean)
 
 ```
+
+```{r Load in Plant Associations and clean}
+Plant_Data<-read.csv("legume_strain diversity_meta analysis_plant data.csv")
+
+##Now filtering out row crop and 999, 0 and 1 presence and absence and joining clean_species
+Plant_Data_Clean <- Plant_Data %>%
+  rename(notes_plantdata=notes) %>% 
+  left_join(Clean_Species) %>%
+  filter(cultivation.status!="row crop", genus_species!="999", species!="sp",species!="spp",species!="sp.",paper_id!=142)
+
+colnames(Plant_Data_Clean)
+
+```
+
+```{r Create dataframe with just papers where native/non natives were studied within a given location }
+
+#Create a new dataframe that has only plant associations with species 
+Plant_Status<-Plant_Associations_Clean %>% 
+  select(paper_id,genus_species,new_name,cultivation.status,global_plant_status,paper_plant_status) %>% 
+  mutate(global_plant_status=ifelse(global_plant_status==1,"nonnative","native"))
+
+Native_NonNative_F1 <- Plant_Data_Clean %>%
+  #only keep papers that looked at native and non native species within the same locaiton
+  filter(compares_natinv==1) %>% 
+  #merge plant associations so that we can determine plant status, etc.
+  left_join(Plant_Associations_Clean)
+  
+
+colnames(Plant_Data_Clean)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ##Strains in native versus non-natives, grouping by species and plant status and rhizobial_sp, and total number of nodules per species and plant status
 
@@ -51,6 +110,7 @@ native_nonnative.strains <- Plant_Associations_num %>%
   ungroup()
 
 ```
+
 ## Loading strain diversity and sequence information
 
 ```{r}
