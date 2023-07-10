@@ -108,13 +108,9 @@ ggplot(Native_NonNative_Fig1,aes(x=paper_plant_status,y=as.numeric(strain_richne
 ```
 
 ```{r LMER native/non natives within a given location}
-Native_NonNative_Fig1
 
-Native_NonNative_lmer <- lmerTest::lmer(data = Native_NonNative_Fig1, strain_richness ~ paper_plant_status*growth_form + (1|paper_id) + (1|new_name))
-anova(Native_NonNative_lmer) #NS
-
-Native_NonNative_lmer <- lmerTest::lmer(data = Native_NonNative_Fig1, strain_richness ~ paper_plant_status*growth_form + (1|paper_id) + (1|new_name) + (1|num_nodules))
-anova(Native_NonNative_lmer) #NS
+Native_NonNative_lmer_2 <- lmerTest::lmer(data = Native_NonNative_Fig1, strain_richness ~ paper_plant_status + (1|paper_id) + (1|new_name) + (1|num_nodules))
+anova(Native_NonNative_lmer_2) #NS
   
 ```
 
