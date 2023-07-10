@@ -81,7 +81,7 @@ allSpp <- plantData %>%
   filter(both_ranges==2) %>%  #41 species * region combos
   select(-native, -introduced)
 
-#Relating number of nodules collected to strain richness. Below a cutoff of 3, the number of strains is nearly always equal to the number of nodules. At 3 and up, this is less of a problem. Subsetting data to 5+ nodules.
+#Relating number of nodules collected to strain richness. Below a cutoff of 3, the number of strains is nearly always equal to the number of nodules. At 3 and up, this is less of a problem. Subsetting data to 3+ nodules.
 ggplot(data=plantData, aes(x=num_nodules, y=strain_richness)) +
   geom_jitter() +
   geom_abline(slope=1) +
