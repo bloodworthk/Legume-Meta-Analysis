@@ -78,7 +78,7 @@ Native_NonNative_Fig1 <- Plant_Data_Clean %>%
   select(paper_id,genus_species, new_name,paper_plant_status,annual_perennial,growth_form,sample_country,sample_continent,sites_sampled,num_nodules,num_plants,strain_richness,proportion_overlapping_strains,num_spp_compared,compares_natinv) %>% 
    #only keep papers that looked at native and non native species within the same location
   filter(compares_natinv==1) %>% 
-  na.omit(plant_paper_status)
+  na.omit(plant_paper_status) 
 
 Native_NonNative_Fig1$strain_richness=as.numeric(Native_NonNative_Fig1$strain_richness)
 
@@ -109,7 +109,7 @@ ggplot(Native_NonNative_Fig1,aes(x=paper_plant_status,y=as.numeric(strain_richne
 
 ```{r LMER native/non natives within a given location}
 
-Native_NonNative_lmer_2 <- lmerTest::lmer(data = Native_NonNative_Fig1, strain_richness ~ paper_plant_status + (1|paper_id) + (1|new_name) + (1|num_nodules))
+Native_NonNative_lmer_2 <- lmerTest::lmer(data = Native_NonNative_Fig1, strain_richness ~ paper_plant_status + (1|paper_id) + (1|new_name))
 anova(Native_NonNative_lmer_2) #NS
   
 ```
