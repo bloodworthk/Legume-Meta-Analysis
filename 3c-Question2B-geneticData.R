@@ -14,6 +14,26 @@ theme_update(axis.title.x=element_text(size=20, vjust=-0.35, margin=margin(t=15)
              panel.grid.major=element_blank(), panel.grid.minor=element_blank(),
              legend.title=element_blank(), legend.text=element_text(size=20))
 
+###bar graph summary statistics function
+#barGraphStats(data=, variable="", byFactorNames=c(""))
+barGraphStats <- function(data, variable, byFactorNames) {
+  count <- length(byFactorNames)
+  N <- aggregate(data[[variable]], data[byFactorNames], FUN=length)
+  names(N)[1:count] <- byFactorNames
+  names(N) <- sub("^x$", "N", names(N))
+  mean <- aggregate(data[[variable]], data[byFactorNames], FUN=mean)
+  names(mean)[1:count] <- byFactorNames
+  names(mean) <- sub("^x$", "mean", names(mean))
+  sd <- aggregate(data[[variable]], data[byFactorNames], FUN=sd)
+  names(sd)[1:count] <- byFactorNames
+  names(sd) <- sub("^x$", "sd", names(sd))
+  preSummaryStats <- merge(N, mean, by=byFactorNames)
+  finalSummaryStats <- merge(preSummaryStats, sd, by=byFactorNames)
+  finalSummaryStats$se <- finalSummaryStats$sd / sqrt(finalSummaryStats$N)
+  return(finalSummaryStats)
+}  
+
+
 ##### data import #####
 cleanNames <- read.csv('legume_clean_names.csv') %>% 
   separate(old_genus_species,c("genus","species","subspecies","extra"),sep=" ") %>% 
@@ -41,7 +61,7 @@ plantData <- read.csv("legume_strain diversity_meta analysis_plant data.csv") %>
          species!="",
          paper_id!=142,
          plant_status!="extinct") %>% 
-  filter(!(sample_country %in% c("Japan-China","Japan_China","Kenya-Sudan","Czech_Republic-France-Georgia-Hungary-Italy-Romania-Spain","Senegal-Mauritania-Tunisia-Burundi","Malawi-Zambia-Kenya","Brazil-Venezuela"))) %>% 
+  # filter(!(sample_country %in% c("Japan-China","Japan_China","Kenya-Sudan","Czech_Republic-France-Georgia-Hungary-Italy-Romania-Spain","Senegal-Mauritania-Tunisia-Burundi","Malawi-Zambia-Kenya","Brazil-Venezuela"))) %>% 
   filter(!is.na(strain_richness)) %>% 
   mutate(strain_richness=as.numeric(strain_richness)) %>% #NA introduced for blanks
   mutate(genetic_region=(ifelse(genetic_region %in% c('16S rRNA', 'PCR-RFLP', 'RFLP-16S'), '16S',
@@ -97,8 +117,10 @@ nativeInvasiveGenetic <- plantData %>%
 
 
 #model
-nativeInvasiveGeneticModel <- lmer(strain_richness ~ plant_status*annual_perennial +
-                                                     (1|num_nodules) +  (1|genetic_region), 
+nativeInvasiveGeneticModel <- lmer(log(strain_richness) ~ plant_status*clean_name +
+                                                    # (1|clean_name) +
+                                                    # (1|num_nodules) +
+                                                    (1|genetic_region),
                                    data=nativeInvasiveGenetic)
 summary(nativeInvasiveGeneticModel)
 anova(nativeInvasiveGeneticModel)
@@ -135,6 +157,120 @@ ggplot(data=nativeInvasiveGeneticSummary,
                    labels=c('Native', 'Introduced')) +
   theme(legend.position='none') +
   coord_cartesian(xlim=c(1.35, 1.65))
+
+
+#### Trends in strain richness by gene region ####
+geneRegion <- plantData %>% 
+  filter(num_nodules>2) %>%
+  filter(!is.na(clean_name),
+         compares_homeaway==0) %>% 
+  mutate(genetic_region2=ifelse(genetic_region %in% c('16S', '16S-23S', '16S-ARDRA', '16S-IGS',
+                                                      '16S-RFLP', '16S rDNA', '16S_23S_RFLP', 
+                                                      '16S_ARDRA', '16S_BLAST', '16S_PCR_RFLP',
+                                                      '16S_rDNA', '16S_RFLP', 'ARDRA', 'PCR',
+                                                      'PCR_RFLP', '16S_PCR-RFLP', 'RFLP_16S',
+                                                      'RFLP', 'RFLP_PCR'), '16S',
+                          ifelse(genetic_region %in% c('23S', '23S_IVS', 'RFLP-23S'), '23S',
+                          ifelse(genetic_region %in% c('AFLP', 'AFLP_Pst-A', 'AFLP_Pst-G',
+                                                       'AFLP_Pst-GC'), 'AFLP',
+                          ifelse(genetic_region %in% c('BOX', 'BOX-AIR', 'box-PCR', 'BOX-PCR',
+                                                       'Box_A1R-PCR', 'BOX_PCR', 'BoxA1R',
+                                                       'BOXA1R', 'BOXA1R-PCR', 
+                                                       'BOXAIR'), 'BOX',
+                          ifelse(genetic_region %in% c('CLUSTAL_W', 
+                                                       'Cluster Analysis'), 'cluster',
+                          ifelse(genetic_region %in% c('ERIC', 'ERIC-PCR', 'ERIC_PCR', 
+                                                       'RFLP-ERIC'), 'ERIC',
+                          ifelse(genetic_region %in% c('IGS', 'IGS_PCR-RFLP', 'RFLP-IGS',
+                                                       'IGSS', 'ITS', 'RFLP_ITS'), 'ITS',
+                          ifelse(genetic_region %in% c('nif_KD', 'nifD', 'nifD-K', 'nifh',
+                                                       'nifH', 'nifH-nifDK', 'nifHD',
+                                                       'RFLP_nifH'), 'nif',
+                          ifelse(genetic_region %in% c('nodBC', 'nodC', 'nodC-nodA', 
+                                                       'nodC-RFLP', 'nodA', 'nodA_PCR_RFLP',
+                                                       'nodD', 'nodD1', 'nodD2', 'nodDAB',
+                                                       'nodDF', 'nodF', 'nodY/K', 'RFLP_nodb3',
+                                                       'RFLP_nodA', 'RFLP_nodb1', 'RFLP_nodb4',
+                                                       'RFLP_nodb5', 'RFLP_nodC'), 'nod',
+                          ifelse(genetic_region %in% c('rep-PCR', 'REP_PCR', 'REP-PCR', 
+                                                       'rep_PCR', 'REP1R-I_REP2-I'), 'REP PCR',
+                          ifelse(genetic_region %in% c('PCR-RAPD', 'RAPD'), 'RAPD',
+                          ifelse(genetic_region %in% c('recA', 'recA-glnA-dnaK', 
+                                                       'recA, glnII', 
+                                                       'recA-glnII-atpD'), 'recA',
+                          ifelse(genetic_region %in% c('glnA', 'glnB', 'glnII', 'gltA', 'gryB',
+                                                       'gyrA', 'gyrB'), 'gln',
+                                 'other'))))))))))))))
+
+#model - all species regardless of whether home and away pairing possible
+nativeInvasiveGeneticModelAll <- lmer(log(strain_richness) ~ plant_status*clean_name +
+                                                      # (1|clean_name) +
+                                                      # (1|num_nodules) +
+                                                        (1|genetic_region),
+                                      data=subset(geneRegion, !is.na(strain_richness)))
+summary(nativeInvasiveGeneticModelAll)
+anova(nativeInvasiveGeneticModelAll)
+
+#figure 3
+ggplot(data=barGraphStats(data=subset(geneRegion, !is.na(strain_richness)), variable="strain_richness", byFactorNames=c("plant_status")), aes(x=plant_status, y=mean)) +
+  geom_bar(stat='identity') +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se, width=0.2)) +
+  ylab('Strain Richness') + xlab('Plant Status') +
+  scale_x_discrete(breaks=c('native', 'introduced'),
+                   limits=c('native', 'introduced'),
+                   labels=c('Native', 'Introduced')) +
+  theme(legend.position='none')
+
+
+
+# This is a bad comparison, because gene regions differ so much in potential richness (e.g., BOX and RFLP are so different from 16S genotyping)
+# #figure 2c (home and away possible, any gene region)
+# nativeInvasiveGeneticSummary <- geneRegion %>% 
+#   group_by(plant_status, clean_name) %>% 
+#   summarise(strain_richness=mean(strain_richness)) %>% 
+#   ungroup()
+# 
+# nativeInvasiveGeneticWide <- nativeInvasiveGeneticSummary %>% 
+#   pivot_wider(names_from=plant_status, values_from=strain_richness) %>% 
+#   mutate(strain_diff=native-introduced) %>% 
+#   na.omit() %>% 
+#   select(clean_name) %>% 
+#   mutate(pair=1)
+# 
+# geneRegionPairs <- geneRegion %>% 
+#   left_join(nativeInvasiveGeneticWide) %>% 
+#   filter(pair==1)
+# 
+# nativeInvasiveGeneticSummaryPairs <- geneRegionPairs %>% 
+#   group_by(plant_status, clean_name) %>% 
+#   summarise(strain_richness=mean(strain_richness)) %>% 
+#   ungroup()
+# 
+# nativeInvasiveGeneticModelPairs <- lmer(log(strain_richness) ~ plant_status*clean_name +
+#                                           # (1|clean_name) +
+#                                           # (1|num_nodules) +
+#                                           (1|genetic_region),
+#                                         data=subset(geneRegionPairs, !is.na(strain_richness)))
+# summary(nativeInvasiveGeneticModelPairs)
+# anova(nativeInvasiveGeneticModelPairs)
+# 
+# ggplot(data=nativeInvasiveGeneticSummaryPairs, 
+#        aes(x=plant_status, y=strain_richness, group=clean_name, color=clean_name)) +
+#   geom_point() +
+#   geom_line() +
+#   ylab('Strain Richness') + xlab('Plant Status') +
+#   scale_x_discrete(breaks=c('native', 'introduced'),
+#                    limits=c('native', 'introduced'),
+#                    labels=c('Native', 'Introduced')) +
+#   theme(legend.position='none') +
+#   coord_cartesian(xlim=c(1.35, 1.65))
+
+
+
+
+
+
+
 
 
 
