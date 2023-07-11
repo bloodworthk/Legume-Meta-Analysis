@@ -66,29 +66,35 @@ colnames(Plant_Data_Clean)
 
 #Create a new dataframe that has only plant associations with species 
 Plant_Status<-Plant_Associations_Clean %>% 
-  select(paper_id,genus_species,new_name,cultivation.status,global_plant_status,paper_plant_status) %>% 
+  select(paper_id,genus_species,new_name,cultivation.status,sample_country, global_plant_status,paper_plant_status) %>% 
   mutate(global_plant_status=ifelse(global_plant_status==1,"nonnative","native")) %>% 
   mutate(paper_plant_status=ifelse(paper_plant_status=="invasive","nonnative",ifelse(paper_plant_status=="introduced","nonnative", paper_plant_status))) %>% 
   unique()
 
 Native_NonNative_Fig1 <- Plant_Data_Clean %>%
   #merge plant associations so that we can determine plant status, etc.
-  merge(Plant_Status,by = c("paper_id", "genus_species", "new_name", "cultivation.status"),all=TRUE) %>% 
-  select(paper_id,new_name,paper_plant_status,annual_perennial,growth_form,sample_country,sample_continent,num_nodules,strain_richness,compares_natinv) %>% 
+  merge(Plant_Status,by = c("paper_id", "genus_species", "new_name", "cultivation.status","sample_country"),all=TRUE) %>% 
+  select(paper_id,new_name,paper_plant_status,annual_perennial,growth_form,sample_country,sample_continent,num_nodules,genetic_region,strain_richness,compares_natinv) %>% 
    #only keep papers that looked at native and non native species within the same location
   filter(compares_natinv==1) %>% 
-  na.omit(plant_paper_status) 
+  na.omit(plant_paper_status) %>% 
+  mutate(Graph_x=ifelse(paper_plant_status=="native","Native (n=136)","Non Native (n=57)"))
 
 Native_NonNative_Fig1$strain_richness=as.numeric(Native_NonNative_Fig1$strain_richness)
+
+#Calculate N number
+Native_NonNative_N<-Native_NonNative_Fig1 %>% 
+  group_by(Graph_x) %>% 
+  summarise(status=length(new_name)) #136 native, 57 non native
 
 ```
 
 
 ```{r Create Figure for Question 1: Boxplot}
 
-ggplot(Native_NonNative_Fig1,aes(x=paper_plant_status,y=as.numeric(strain_richness))) +
+ggplot(Native_NonNative_Fig1,aes(x=Graph_x,y=as.numeric(strain_richness))) +
   geom_boxplot()+
-  scale_x_discrete(labels = c("Native", "Non Native"), breaks = c("native","nonnative"))+
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10))+
   xlab("Plant Status")+
   ylab("Rhizobial Strain Richness")+
   expand_limits(y=c(0,30))
@@ -97,9 +103,9 @@ ggplot(Native_NonNative_Fig1,aes(x=paper_plant_status,y=as.numeric(strain_richne
 
 ```{r Create Figure for Question 1: Violin Plot }
 
-ggplot(Native_NonNative_Fig1,aes(x=paper_plant_status,y=as.numeric(strain_richness))) +
+ggplot(Native_NonNative_Fig1,aes(x=Graph_x,y=as.numeric(strain_richness))) +
   geom_violin()+
-  scale_x_discrete(labels = c("Native", "Non Native"), breaks = c("native","nonnative"))+
+  scale_x_discrete(labels = function(x) str_wrap(x, width = 10))+
   xlab("Plant Status")+
   ylab("Rhizobial Strain Richness")+
   expand_limits(y=c(0,30))
