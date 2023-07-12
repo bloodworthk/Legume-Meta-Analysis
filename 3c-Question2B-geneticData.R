@@ -3,6 +3,7 @@
 
 setwd('G:\\.shortcut-targets-by-id\\1w2OXIzBKQqFZ0BCeKP7C9pX36ViGDPBj\\Legume-Meta Analysis\\Data') #kim's wd
 
+library(car)
 library(lme4)
 library(lmerTest)
 library(tidyverse)
@@ -113,21 +114,36 @@ length(unique(allSpp$clean_name)) #19 species that have the same gene region for
 ##### mixed model for native/invasive using same gene region #####
 nativeInvasiveGenetic <- plantData %>% 
   right_join(allSpp) %>% 
-  select(paper_id, clean_name, plant_status, annual_perennial, growth_form, habitat_type, sample_country, sample_continent, num_nodules, num_plants, genetic_region, strain_richness, cultivation.status)
+  select(paper_id, clean_name, plant_status, annual_perennial, growth_form, habitat_type, sample_country, sample_continent, num_nodules, num_plants, genetic_region, strain_richness, cultivation.status) %>% 
+  group_by(plant_status, clean_name) %>% 
+  summarise(strain_richness=mean(strain_richness)) %>% 
+  ungroup()
+
+
+#normality
+hist(nativeInvasiveGenetic$strain_richness)
+qqPlot(nativeInvasiveGenetic$strain_richness)
+shapiro.test(nativeInvasiveGenetic$strain_richness)
+# W = 0.77184, p-value = 2.931e-06
+
+hist(log(nativeInvasiveGenetic$strain_richness))
+qqPlot(log(nativeInvasiveGenetic$strain_richness))
+shapiro.test(log(nativeInvasiveGenetic$strain_richness))
+# W = 0.98225, p-value = 0.7956
 
 
 #model
-nativeInvasiveGeneticModel <- lmer(log(strain_richness) ~ plant_status*clean_name +
-                                                    # (1|clean_name) +
+nativeInvasiveGeneticModel <- lmer(log(strain_richness) ~ plant_status +
+                                                    (1|clean_name),
                                                     # (1|num_nodules) +
-                                                    (1|genetic_region),
+                                                    # (1|genetic_region),
                                    data=nativeInvasiveGenetic)
 summary(nativeInvasiveGeneticModel)
 anova(nativeInvasiveGeneticModel)
 
 #figure 2b
 nativeInvasiveGeneticSummary <- nativeInvasiveGenetic %>% 
-  group_by(plant_status, clean_name, genetic_region) %>% 
+  group_by(plant_status, clean_name) %>% 
   summarise(strain_richness=mean(strain_richness)) %>% 
   ungroup()
 
@@ -136,27 +152,17 @@ nativeInvasiveGeneticWide <- nativeInvasiveGeneticSummary %>%
   mutate(strain_diff=native-introduced)
 
 ggplot(data=nativeInvasiveGeneticSummary, 
-       aes(x=plant_status, y=strain_richness, group=interaction(clean_name, genetic_region), color=interaction(clean_name, genetic_region))) +
-  geom_point() +
+       aes(x=plant_status, y=strain_richness, group=interaction(clean_name), color=interaction(clean_name))) +
+  geom_point(size=2) +
   geom_line() +
   ylab('Strain Richness') + xlab('Plant Status') +
   scale_x_discrete(breaks=c('native', 'introduced'),
                    limits=c('native', 'introduced'),
-                   labels=c('Native', 'Introduced')) +
+                   labels=c('Native\n(N=19)', 'Introduced\n(N=19)')) +
   theme(legend.position='none') +
   coord_cartesian(xlim=c(1.35, 1.65))
+# ggsave('C:\\Users\\kjkomatsu\\UNCG\\Kathryn Bloodworth - Invasive Legume Meta-Analysis\\Figures\\Fig2b_HomeAway_acrossStudies.png', width=6, height=6, units='in', dpi=300, bg='white')
 
-ggplot(data=nativeInvasiveGeneticSummary, 
-       aes(x=plant_status, y=strain_richness, color=clean_name)) +
-  geom_point() +
-  geom_line() +
-  facet_wrap(~genetic_region) +
-  ylab('Strain Richness') + xlab('Plant Status') +
-  scale_x_discrete(breaks=c('native', 'introduced'),
-                   limits=c('native', 'introduced'),
-                   labels=c('Native', 'Introduced')) +
-  theme(legend.position='none') +
-  coord_cartesian(xlim=c(1.35, 1.65))
 
 
 #### Trends in strain richness by gene region ####
