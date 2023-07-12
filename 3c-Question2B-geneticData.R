@@ -114,7 +114,43 @@ length(unique(allSpp$clean_name)) #19 species that have the same gene region for
 ##### mixed model for native/invasive using same gene region #####
 nativeInvasiveGenetic <- plantData %>% 
   right_join(allSpp) %>% 
-  select(paper_id, clean_name, plant_status, annual_perennial, growth_form, habitat_type, sample_country, sample_continent, num_nodules, num_plants, genetic_region, strain_richness, cultivation.status) %>% 
+  select(paper_id, clean_name, plant_status, annual_perennial, growth_form, habitat_type, sample_country, sample_continent, num_nodules, num_plants, genetic_region, strain_richness, cultivation.status) %>%
+  mutate(genetic_region2=ifelse(genetic_region %in% c('16S', '16S-23S', '16S-ARDRA', '16S-IGS',
+                                                      '16S-RFLP', '16S rDNA', '16S_23S_RFLP', 
+                                                      '16S_ARDRA', '16S_BLAST', '16S_PCR_RFLP',
+                                                      '16S_rDNA', '16S_RFLP', 'ARDRA', 'PCR',
+                                                      'PCR_RFLP', '16S_PCR-RFLP', 'RFLP_16S',
+                                                      'RFLP', 'RFLP_PCR'), '16S',
+                        ifelse(genetic_region %in% c('23S', '23S_IVS', 'RFLP-23S'), '23S',
+                        ifelse(genetic_region %in% c('AFLP', 'AFLP_Pst-A', 'AFLP_Pst-G',
+                                                                    'AFLP_Pst-GC'), 'AFLP',
+                        ifelse(genetic_region %in% c('BOX', 'BOX-AIR', 'box-PCR', 'BOX-PCR',
+                                                     'Box_A1R-PCR', 'BOX_PCR', 'BoxA1R',
+                                                     'BOXA1R', 'BOXA1R-PCR', 'BOXAIR'), 'BOX',
+                        ifelse(genetic_region %in% c('CLUSTAL_W', 
+                                                     'Cluster Analysis'), 'cluster',
+                        ifelse(genetic_region %in% c('ERIC', 'ERIC-PCR', 'ERIC_PCR', 
+                                                     'RFLP-ERIC'), 'ERIC',
+                        ifelse(genetic_region %in% c('IGS', 'IGS_PCR-RFLP', 'RFLP-IGS', 
+                                                     'IGSS', 'ITS', 'RFLP_ITS'), 'ITS',
+                        ifelse(genetic_region %in% c('nif_KD', 'nifD', 'nifD-K', 'nifh',
+                                                     'nifH', 'nifH-nifDK', 'nifHD',
+                                                     'RFLP_nifH'), 'nif',
+                        ifelse(genetic_region %in% c('nodBC', 'nodC', 'nodC-nodA',
+                                                     'nodC-RFLP', 'nodA', 'nodA_PCR_RFLP',
+                                                     'nodD', 'nodD1', 'nodD2', 'nodDAB',
+                                                     'nodDF', 'nodF', 'nodY/K', 'RFLP_nodb3',
+                                                     'RFLP_nodA', 'RFLP_nodb1', 'RFLP_nodb4',
+                                                     'RFLP_nodb5', 'RFLP_nodC'), 'nod',
+                       ifelse(genetic_region %in% c('rep-PCR', 'REP_PCR', 'REP-PCR', 
+                                                    'rep_PCR', 'REP1R-I_REP2-I'), 'REP PCR',
+                       ifelse(genetic_region %in% c('PCR-RAPD', 'RAPD'), 'RAPD',
+                       ifelse(genetic_region %in% c('recA', 'recA-glnA-dnaK',
+                                                    'recA, glnII', 'recA-glnII-atpD'), 'recA',
+                       ifelse(genetic_region %in% c('glnA', 'glnB', 'glnII', 'gltA', 'gryB',
+                                                    'gyrA', 'gyrB'), 'gln',
+                              'other')))))))))))))) %>% 
+  filter(genetic_region2=='16S') %>% 
   group_by(plant_status, clean_name) %>% 
   summarise(strain_richness=mean(strain_richness)) %>% 
   ungroup()
@@ -124,12 +160,12 @@ nativeInvasiveGenetic <- plantData %>%
 hist(nativeInvasiveGenetic$strain_richness)
 qqPlot(nativeInvasiveGenetic$strain_richness)
 shapiro.test(nativeInvasiveGenetic$strain_richness)
-# W = 0.77184, p-value = 2.931e-06
+# W = 0.73156, p-value = 1.558e-06
 
 hist(log(nativeInvasiveGenetic$strain_richness))
 qqPlot(log(nativeInvasiveGenetic$strain_richness))
 shapiro.test(log(nativeInvasiveGenetic$strain_richness))
-# W = 0.98225, p-value = 0.7956
+# W = 0.95695, p-value = 0.1979
 
 
 #model
@@ -151,7 +187,7 @@ ggplot(data=nativeInvasiveGenetic,
   ylab('Strain Richness') + xlab('Plant Status') +
   scale_x_discrete(breaks=c('native', 'introduced'),
                    limits=c('native', 'introduced'),
-                   labels=c('Native\n(N=19)', 'Introduced\n(N=19)')) +
+                   labels=c('Native\n(N=17)', 'Introduced\n(N=17)')) +
   theme(legend.position='none') +
   coord_cartesian(xlim=c(1.35, 1.65))
 # ggsave('C:\\Users\\kjkomatsu\\UNCG\\Kathryn Bloodworth - Invasive Legume Meta-Analysis\\Figures\\Fig2b_HomeAway_acrossStudies.png', width=6, height=6, units='in', dpi=300, bg='white')
@@ -201,6 +237,28 @@ geneRegion <- plantData %>%
                                                        'gyrA', 'gyrB'), 'gln',
                                  'other'))))))))))))))
 #gene regions do differ from each other, with the fingerprinting methods having more "diversity" than the genotyping methods
+
+geneticData <- plantData %>% 
+  right_join(allSpp) %>% 
+  select(paper_id, clean_name, plant_status, annual_perennial, growth_form, habitat_type, sample_country, sample_continent, num_nodules, num_plants, genetic_region, strain_richness, cultivation.status) %>% 
+  group_by(paper_id, clean_name, plant_status, genetic_region) %>% 
+  summarise(strain_richness=mean(strain_richness)) %>% 
+  ungroup() %>% 
+  filter(genetic_region=='16S') %>% 
+  mutate(paper_id=as.character(paper_id))
+
+accessionNumbers <- read.csv('legume_strain diversity_meta analysis_strain sequences.csv') %>% 
+  select(paper_id, author, year, genus_species, genetic_region, strain, accession_number, notes) %>% 
+  separate(genus_species,c("genus","species","subspecies","extra"),sep=" ") %>% 
+  unite(col=genus_species, c(genus,species,subspecies,extra), sep='_', na.rm=TRUE) %>% 
+  left_join(cleanNames) %>% 
+  right_join(geneticData)
+  
+  
+
+
+
+#### Global plant status ####
 
 globalStatus <- read.csv('legume_strain diversity_meta analysis_plant associations_edited names_presence absence.csv') %>% 
   left_join(cleanNames) %>% 
