@@ -101,7 +101,8 @@ ggplot(Native_NonNative_Fig1,aes(x=Graph_x,y=avg_strain_richness)) +
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10))+
   xlab("Plant Status")+
   ylab("Rhizobial Strain Richness")+
-  expand_limits(y=c(0,30))
+  expand_limits(y=c(0,25))+
+  annotate("text", x=15, y=0.25, label = "", size=20)
   
 ```
 
@@ -131,7 +132,7 @@ ols_plot_resid_hist(Native_NonNative_Norm_TF)
 ols_test_normality(Native_NonNative_Norm_TF) #normal
 
 #lmer
-Native_NonNative_lmer_2 <- lmerTest::lmer(data = Native_NonNative_Fig1, strain_richness_TF ~ paper_plant_status*new_name + (1|paper_id))
+Native_NonNative_lmer_2 <- lmerTest::lmer(data = Native_NonNative_Fig1, strain_richness_TF ~ paper_plant_status + (1|paper_id))
 anova(Native_NonNative_lmer_2) #NS
   
 ```
