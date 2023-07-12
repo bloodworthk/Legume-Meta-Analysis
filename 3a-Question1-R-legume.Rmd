@@ -78,9 +78,13 @@ Native_NonNative_Fig1 <- Plant_Data_Clean %>%
    #only keep papers that looked at native and non native species within the same location
   filter(compares_natinv==1) %>% 
   na.omit(plant_paper_status) %>% 
-  mutate(Graph_x=ifelse(paper_plant_status=="native","Native (n=136)","Non Native (n=57)"))
-
-Native_NonNative_Fig1$strain_richness=as.numeric(Native_NonNative_Fig1$strain_richness)
+  mutate(Graph_x=ifelse(paper_plant_status=="native","Native (n=47)","Non Native (n=20)")) %>% 
+  #remove papers that no longer have a native or non-native partner after filtering steps
+  filter(!(paper_id %in% c(289,325))) %>% 
+  #average across plant ID, species, and status
+  group_by(paper_id,new_name,sample_country,paper_plant_status,annual_perennial,growth_form,sample_continent,Graph_x) %>% 
+  summarise(avg_strain_richness=mean(as.numeric(strain_richness))) %>% 
+  ungroup()
 
 #Calculate N number
 Native_NonNative_N<-Native_NonNative_Fig1 %>% 
@@ -92,18 +96,19 @@ Native_NonNative_N<-Native_NonNative_Fig1 %>%
 
 ```{r Create Figure for Question 1: Boxplot}
 
-ggplot(Native_NonNative_Fig1,aes(x=Graph_x,y=as.numeric(strain_richness))) +
+ggplot(Native_NonNative_Fig1,aes(x=Graph_x,y=avg_strain_richness)) +
   geom_boxplot()+
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10))+
   xlab("Plant Status")+
   ylab("Rhizobial Strain Richness")+
-  expand_limits(y=c(0,30))
+  expand_limits(y=c(0,25))+
+  annotate("text", x=15, y=0.25, label = "", size=20)
   
 ```
 
 ```{r Create Figure for Question 1: Violin Plot }
 
-ggplot(Native_NonNative_Fig1,aes(x=Graph_x,y=as.numeric(strain_richness))) +
+ggplot(Native_NonNative_Fig1,aes(x=Graph_x,y=avg_strain_richness)) +
   geom_violin()+
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10))+
   xlab("Plant Status")+
@@ -115,19 +120,19 @@ ggplot(Native_NonNative_Fig1,aes(x=Graph_x,y=as.numeric(strain_richness))) +
 ```{r LMER native/non natives within a given location}
 
 #Data normality
-Native_NonNative_Norm <- lm(data = Native_NonNative_Fig1, strain_richness ~ paper_plant_status)
+Native_NonNative_Norm <- lm(data = Native_NonNative_Fig1, avg_strain_richness ~ paper_plant_status)
 ols_plot_resid_hist(Native_NonNative_Norm) 
 ols_test_normality(Native_NonNative_Norm) #left skewed
 
 Native_NonNative_Fig1<-Native_NonNative_Fig1 %>% 
-  mutate(strain_richness_TF=log(strain_richness))
+  mutate(strain_richness_TF=log(avg_strain_richness))
 
 Native_NonNative_Norm_TF <- lm(data = Native_NonNative_Fig1, strain_richness_TF ~ paper_plant_status)
 ols_plot_resid_hist(Native_NonNative_Norm_TF) 
-ols_test_normality(Native_NonNative_Norm_TF) #better but not normal
+ols_test_normality(Native_NonNative_Norm_TF) #normal
 
 #lmer
-Native_NonNative_lmer_2 <- lmerTest::lmer(data = Native_NonNative_Fig1, strain_richness_TF ~ paper_plant_status + (1|paper_id) + (1|new_name))
+Native_NonNative_lmer_2 <- lmerTest::lmer(data = Native_NonNative_Fig1, strain_richness_TF ~ paper_plant_status + (1|paper_id))
 anova(Native_NonNative_lmer_2) #NS
   
 ```
