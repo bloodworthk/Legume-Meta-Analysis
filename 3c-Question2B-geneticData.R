@@ -6,6 +6,8 @@ setwd('G:\\.shortcut-targets-by-id\\1w2OXIzBKQqFZ0BCeKP7C9pX36ViGDPBj\\Legume-Me
 library(car)
 library(lme4)
 library(lmerTest)
+library(ggsci)
+library(ggrepel)
 library(tidyverse)
 
 theme_set(theme_bw())
@@ -36,19 +38,26 @@ barGraphStats <- function(data, variable, byFactorNames) {
 
 
 ##### data import #####
+
+# getting clean legume names for standardizing across papers
 cleanNames <- read.csv('legume_clean_names.csv') %>% 
   separate(old_genus_species,c("genus","species","subspecies","extra"),sep=" ") %>% 
   unite(col=genus_species, c(genus,species,subspecies,extra), sep='_',na.rm=TRUE) %>% 
   rename(clean_name=new_name) %>% 
   select(-notes)
 
+# getting native/invasive status for each study and legume species
 plantStatus <- read.csv('legume_strain diversity_meta analysis_plant associations_edited names_presence absence.csv') %>% 
-  left_join(cleanNames) %>% 
-  select(paper_id, clean_name, plant_status)
+  left_join(cleanNames) %>%
+  rename(paper_id=ï..paper_id) %>% 
+  select(paper_id, clean_name, plant_status, sample_country) %>% 
+  unique()
 
+# removing species where legume species isn't clear, native/invasive status is unknown, and cultivated species
 plantData <- read.csv("legume_strain diversity_meta analysis_plant data.csv") %>% 
   #change all 999 to NAs
-  mutate_all(~na_if(., 999)) %>% 
+  mutate(across(all_of(c('sites_sampled', 'num_nodules', 'strain_richness', 'proportion_novel_strains',
+                         'proportion_familiar_strains', 'proportion_overlapping_strains', 'num_spp_compared')), ~na_if(., 999))) %>% 
   left_join(cleanNames) %>% 
   select(-notes, -genus_species) %>% 
   full_join(plantStatus) %>% 
@@ -79,15 +88,15 @@ homeAway <- plantData %>%
   group_by(clean_name, plant_status) %>% 
   summarise(gene_regions=length(unique(genetic_region)),
             studies=length(unique(paper_id))) %>% 
-  ungroup() #3 legume spp with home/away and genetic data, most of which have info for multiple gene regions
+  ungroup() #8 legume spp with home/away and genetic data, most of which have info for multiple gene regions
 
 nativeInvasive <- plantData %>% 
-  filter(compares_natinv==1) %>% #99 observations with native/non-native comparison
-  filter(genbank==1) %>%  #84 of those that have genetic data
+  filter(compares_natinv==1) %>% #471 observations with native/non-native comparison
+  filter(genbank==1) %>%  #325 of those that have genetic data
   group_by(clean_name, plant_status) %>% 
   summarise(gene_regions=length(unique(genetic_region)),
             studies=length(unique(paper_id))) %>% 
-  ungroup() #12 introduced with genetic data that can be compared to at least one native species in the study
+  ungroup() #24 introduced with genetic data that can be compared to at least one native species in the study
 
 allSpp <- plantData %>% 
   filter(num_nodules>2) %>%
@@ -99,7 +108,7 @@ allSpp <- plantData %>%
   mutate(yes=1) %>% 
   pivot_wider(names_from=plant_status, values_from=yes) %>% #figure out which species have the same genetic region from native and introduced ranges
   mutate(both_ranges=native+introduced) %>% 
-  filter(both_ranges==2) %>%  #41 species * region combos
+  filter(both_ranges==2) %>%  #35 species * region combos
   select(-native, -introduced)
 
 #Relating number of nodules collected to strain richness. Below a cutoff of 3, the number of strains is nearly always equal to the number of nodules. At 3 and up, this is less of a problem. Subsetting data to 3+ nodules.
@@ -108,13 +117,14 @@ ggplot(data=plantData, aes(x=num_nodules, y=strain_richness)) +
   geom_abline(slope=1) +
   coord_cartesian(xlim=c(0,10), ylim=c(0,10))
 
-length(unique(allSpp$clean_name)) #19 species that have the same gene region for both native and introduced ranges
+length(unique(allSpp$clean_name)) #16 species that have the same gene region for both native and introduced ranges
 
 
 ##### mixed model for native/invasive using same gene region #####
 nativeInvasiveGenetic <- plantData %>% 
   right_join(allSpp) %>% 
-  select(paper_id, clean_name, plant_status, annual_perennial, growth_form, habitat_type, sample_country, sample_continent, num_nodules, num_plants, genetic_region, strain_richness, cultivation.status) %>%
+  select(paper_id, clean_name, plant_status, annual_perennial, growth_form, habitat_type, sample_country, 
+         sample_continent, num_nodules, num_plants, genetic_region, strain_richness, cultivation.status) %>%
   mutate(genetic_region2=ifelse(genetic_region %in% c('16S', '16S-23S', '16S-ARDRA', '16S-IGS',
                                                       '16S-RFLP', '16S rDNA', '16S_23S_RFLP', 
                                                       '16S_ARDRA', '16S_BLAST', '16S_PCR_RFLP',
@@ -160,17 +170,16 @@ nativeInvasiveGenetic <- plantData %>%
 hist(nativeInvasiveGenetic$strain_richness)
 qqPlot(nativeInvasiveGenetic$strain_richness)
 shapiro.test(nativeInvasiveGenetic$strain_richness)
-# W = 0.73156, p-value = 1.558e-06
+# W = 0.75401, p-value = 1.058e-05
 
 hist(log(nativeInvasiveGenetic$strain_richness))
 qqPlot(log(nativeInvasiveGenetic$strain_richness))
 shapiro.test(log(nativeInvasiveGenetic$strain_richness))
-# W = 0.95695, p-value = 0.1979
+# W = 0.9429, p-value = 0.1089
 
 
 #model
-nativeInvasiveGeneticModel <- lmer(log(strain_richness) ~ plant_status +
-                                                    (1|clean_name),
+nativeInvasiveGeneticModel <- lmer(log(strain_richness) ~ plant_status + (1|clean_name),
                                    data=nativeInvasiveGenetic)
 summary(nativeInvasiveGeneticModel)
 anova(nativeInvasiveGeneticModel)
@@ -181,16 +190,25 @@ nativeInvasiveGeneticWide <- nativeInvasiveGenetic %>%
   mutate(strain_diff=native-introduced)
 
 ggplot(data=nativeInvasiveGenetic, 
-       aes(x=plant_status, y=strain_richness, group=interaction(clean_name), color=interaction(clean_name))) +
-  geom_point(size=2) +
-  geom_line() +
+       aes(x=plant_status, y=strain_richness, group=interaction(clean_name), color=interaction(clean_name), label=clean_name)) +
+  geom_line(size=1.5) +
+  geom_point(size=5, position=position_jitter(height=0.1, width=0)) +
+  geom_text_repel(data = subset(nativeInvasiveGenetic, plant_status == "introduced"),
+                  aes(label = clean_name, size=14), 
+                  nudge_x = 0.1, direction = "y", hjust = 0,
+                  max.overlaps=100
+                  # box.padding = 0.5, point.padding = 0.5,
+                  # segment.color = 'transparent'
+                  ) +
   ylab('Strain Richness') + xlab('Plant Status') +
   scale_x_discrete(breaks=c('native', 'introduced'),
                    limits=c('native', 'introduced'),
-                   labels=c('Native\n(N=17)', 'Introduced\n(N=17)')) +
+                   labels=c('Native\n(N=15)', 'Introduced\n(N=15)'),
+                   expand = expansion(mult = 2.5)) +
+  scale_color_simpsons() +
   theme(legend.position='none') +
   coord_cartesian(xlim=c(1.35, 1.65))
-# ggsave('C:\\Users\\kjkomatsu\\UNCG\\Kathryn Bloodworth - Invasive Legume Meta-Analysis\\Figures\\Fig2b_HomeAway_acrossStudies.png', width=6, height=6, units='in', dpi=300, bg='white')
+# ggsave('C:\\Users\\kjkomatsu\\UNCG\\Kathryn Bloodworth - Invasive Legume Meta-Analysis\\Figures\\Fig2b_HomeAway_acrossStudies.png', width=12, height=12, units='in', dpi=300, bg='white')
 
 
 
@@ -235,12 +253,15 @@ geneRegion <- plantData %>%
                                                        'recA-glnII-atpD'), 'recA',
                           ifelse(genetic_region %in% c('glnA', 'glnB', 'glnII', 'gltA', 'gryB',
                                                        'gyrA', 'gyrB'), 'gln',
-                                 'other'))))))))))))))
+                                 'other')))))))))))))) %>% 
+  select(genetic_region, genetic_region2) %>% 
+  unique()
 #gene regions do differ from each other, with the fingerprinting methods having more "diversity" than the genotyping methods
 
 geneticData <- plantData %>% 
   right_join(allSpp) %>% 
-  select(paper_id, clean_name, plant_status, annual_perennial, growth_form, habitat_type, sample_country, sample_continent, num_nodules, num_plants, genetic_region, strain_richness, cultivation.status) %>% 
+  select(paper_id, clean_name, plant_status, annual_perennial, growth_form, habitat_type, sample_country, 
+         sample_continent, num_nodules, num_plants, genetic_region, strain_richness, cultivation.status) %>% 
   group_by(paper_id, clean_name, plant_status, genetic_region) %>% 
   summarise(strain_richness=mean(strain_richness)) %>% 
   ungroup() %>% 
@@ -248,29 +269,39 @@ geneticData <- plantData %>%
   mutate(paper_id=as.character(paper_id))
 
 accessionNumbers <- read.csv('legume_strain diversity_meta analysis_strain sequences.csv') %>% 
+  rename(paper_id=ï..paper_id) %>% 
   select(paper_id, author, year, genus_species, genetic_region, strain, accession_number, notes) %>% 
   separate(genus_species,c("genus","species","subspecies","extra"),sep=" ") %>% 
   unite(col=genus_species, c(genus,species,subspecies,extra), sep='_', na.rm=TRUE) %>% 
   left_join(cleanNames) %>% 
-  right_join(geneticData)
+  right_join(geneticData) %>% 
+  filter(!is.na(accession_number), accession_number!='')
+
+uniqueAccessionNumbers <- accessionNumbers %>% 
+  select(accession_number) %>% 
+  unique()
+# write.csv(uniqueAccessionNumbers, 'accessionNumbers_homeAway.csv', row.names=F)
   
-  
+
 
 
 
 #### Global plant status ####
 
 globalStatus <- read.csv('legume_strain diversity_meta analysis_plant associations_edited names_presence absence.csv') %>% 
+  rename(paper_id=ï..paper_id) %>% 
   left_join(cleanNames) %>% 
   mutate(global_plant_status=ifelse((exo_NA+exo_SA+exo_AU+exo_AS+exo_EU+exo_AF)>0,'introduced','native')) %>% 
-  select(paper_id, clean_name, global_plant_status)
+  select(paper_id, clean_name, global_plant_status) %>% 
+  unique()
   
 homeAwayAll <- plantData %>% 
   filter(num_nodules>2) %>%
   filter(!is.na(clean_name),
          compares_homeaway==0) %>% 
   left_join(globalStatus) %>% 
-  group_by(global_plant_status, clean_name) %>% 
+  left_join(geneRegion) %>% 
+  group_by(global_plant_status, clean_name) %>%  #averaging over papers, gene regions, etc -- plant species are our "replicates" for this question
   summarise(strain_richness=mean(strain_richness)) %>% 
   ungroup() %>% 
   filter(!is.na(strain_richness))
@@ -280,82 +311,32 @@ homeAwayAll <- plantData %>%
 hist(homeAwayAll$strain_richness)
 qqPlot(homeAwayAll$strain_richness)
 shapiro.test(homeAwayAll$strain_richness)
-# W = 0.70393, p-value < 2.2e-16
+# W = 0.70895, p-value < 2.2e-16
 
 hist(log(homeAwayAll$strain_richness))
 qqPlot(log(homeAwayAll$strain_richness))
 shapiro.test(log(homeAwayAll$strain_richness))
-# W = 0.97784, p-value = 2.746e-05
+# W = 0.9773, p-value = 2.277e-05
 
 
 #model - all species regardless of whether home and away pairing possible
 homeAwayAllModel <- lm(log(strain_richness) ~ global_plant_status,
-                                   data=homeAwayAll)
+                         data=homeAwayAll)
 summary(homeAwayAllModel)
 anova(homeAwayAllModel)
 
-#figure 3
+#figure 1
 ggplot(data=barGraphStats(data=homeAwayAll, variable="strain_richness", byFactorNames=c("global_plant_status")), aes(x=global_plant_status, y=mean)) +
   geom_bar(stat='identity', fill='white', color='black') +
   geom_errorbar(aes(ymin=mean-se, ymax=mean+se, width=0.2)) +
   ylab('Strain Richness') + xlab('Global Plant Status') +
   scale_x_discrete(breaks=c('native', 'introduced'),
                    limits=c('native', 'introduced'),
-                   labels=c('Native\n(N=190)', 'Introduced\n(N=166)')) +
+                   labels=c('Native\n(N=186)', 'Introduced\n(N=164)')) +
   annotate('text', x=1, y=8, label='a', size=6) +
   annotate('text', x=2, y=10.5, label='b', size=6) +
   theme(legend.position='none')
-# ggsave('C:\\Users\\kjkomatsu\\UNCG\\Kathryn Bloodworth - Invasive Legume Meta-Analysis\\Figures\\Fig3_HomeAway_allSpecies.png', width=6, height=6, units='in', dpi=300, bg='white')
-
-
-# This is a bad comparison, because gene regions differ so much in potential richness (e.g., BOX and RFLP are so different from 16S genotyping)
-# #figure 2c (home and away possible, any gene region)
-# nativeInvasiveGeneticSummary <- geneRegion %>% 
-#   group_by(plant_status, clean_name) %>% 
-#   summarise(strain_richness=mean(strain_richness)) %>% 
-#   ungroup()
-# 
-# nativeInvasiveGeneticWide <- nativeInvasiveGeneticSummary %>% 
-#   pivot_wider(names_from=plant_status, values_from=strain_richness) %>% 
-#   mutate(strain_diff=native-introduced) %>% 
-#   na.omit() %>% 
-#   select(clean_name) %>% 
-#   mutate(pair=1)
-# 
-# geneRegionPairs <- geneRegion %>% 
-#   left_join(nativeInvasiveGeneticWide) %>% 
-#   filter(pair==1)
-# 
-# nativeInvasiveGeneticSummaryPairs <- geneRegionPairs %>% 
-#   group_by(plant_status, clean_name) %>% 
-#   summarise(strain_richness=mean(strain_richness)) %>% 
-#   ungroup()
-# 
-# nativeInvasiveGeneticModelPairs <- lmer(log(strain_richness) ~ plant_status*clean_name +
-#                                           # (1|clean_name) +
-#                                           # (1|num_nodules) +
-#                                           (1|genetic_region),
-#                                         data=subset(geneRegionPairs, !is.na(strain_richness)))
-# summary(nativeInvasiveGeneticModelPairs)
-# anova(nativeInvasiveGeneticModelPairs)
-# 
-# ggplot(data=nativeInvasiveGeneticSummaryPairs, 
-#        aes(x=plant_status, y=strain_richness, group=clean_name, color=clean_name)) +
-#   geom_point() +
-#   geom_line() +
-#   ylab('Strain Richness') + xlab('Plant Status') +
-#   scale_x_discrete(breaks=c('native', 'introduced'),
-#                    limits=c('native', 'introduced'),
-#                    labels=c('Native', 'Introduced')) +
-#   theme(legend.position='none') +
-#   coord_cartesian(xlim=c(1.35, 1.65))
-
-
-
-
-
-
-
+# ggsave('C:\\Users\\kjkomatsu\\UNCG\\Kathryn Bloodworth - Invasive Legume Meta-Analysis\\Figures\\Fig1_HomeAway_allSpecies.png', width=6, height=6, units='in', dpi=300, bg='white')
 
 
 
@@ -364,10 +345,10 @@ ggplot(data=barGraphStats(data=homeAwayAll, variable="strain_richness", byFactor
 numSpp <- plantData %>% 
   select(clean_name) %>% 
   filter(!is.na(clean_name)) %>% 
-  unique() #711 legume species examined (including native/introduced spp and some duplicates for spp that were sampled both at home and away)
+  unique() #523 legume species examined (including native/introduced spp and some duplicates for spp that were sampled both at home and away)
 
 anyGenetic <- plantData %>% 
-  filter(genbank==1) %>% #2261 observations of those that have genetic data
+  filter(genbank==1) %>% #1717 observations of those that have genetic data
   select(clean_name, plant_status, genbank, genetic_region) %>% 
   unique() %>% 
   pivot_wider(names_from=genetic_region, values_from=genbank, values_fill=NA) %>% 
