@@ -258,30 +258,33 @@ geneRegion <- plantData %>%
   unique()
 #gene regions do differ from each other, with the fingerprinting methods having more "diversity" than the genotyping methods
 
-geneticData <- plantData %>% 
-  right_join(allSpp) %>% 
-  select(paper_id, clean_name, plant_status, annual_perennial, growth_form, habitat_type, sample_country, 
-         sample_continent, num_nodules, num_plants, genetic_region, strain_richness, cultivation.status) %>% 
-  group_by(paper_id, clean_name, plant_status, genetic_region) %>% 
-  summarise(strain_richness=mean(strain_richness)) %>% 
-  ungroup() %>% 
-  filter(genetic_region=='16S') %>% 
-  mutate(paper_id=as.character(paper_id))
-
-accessionNumbers <- read.csv('legume_strain diversity_meta analysis_strain sequences.csv') %>% 
-  rename(paper_id=ï..paper_id) %>% 
-  select(paper_id, author, year, genus_species, genetic_region, strain, accession_number, notes) %>% 
-  separate(genus_species,c("genus","species","subspecies","extra"),sep=" ") %>% 
-  unite(col=genus_species, c(genus,species,subspecies,extra), sep='_', na.rm=TRUE) %>% 
-  left_join(cleanNames) %>% 
-  right_join(geneticData) %>% 
-  filter(!is.na(accession_number), accession_number!='')
-
-uniqueAccessionNumbers <- accessionNumbers %>% 
-  select(accession_number) %>% 
-  unique()
-# write.csv(uniqueAccessionNumbers, 'accessionNumbers_homeAway.csv', row.names=F)
-  
+#### checking genbank data to see whether we can assess if the strains across studies are similar/different. this is a fail, not enough data available ####
+# geneticData <- plantData %>% 
+#   right_join(allSpp) %>% 
+#   select(paper_id, clean_name, plant_status, annual_perennial, growth_form, habitat_type, sample_country, 
+#          sample_continent, num_nodules, num_plants, genetic_region, strain_richness, cultivation.status) %>% 
+#   group_by(paper_id, clean_name, plant_status, genetic_region) %>% 
+#   summarise(strain_richness=mean(strain_richness)) %>% 
+#   ungroup() %>% 
+#   filter(genetic_region=='16S') %>% 
+#   mutate(paper_id=as.character(paper_id))
+# 
+# accessionNumbers <- read.csv('legume_strain diversity_meta analysis_strain sequences.csv') %>% 
+#   rename(paper_id=ï..paper_id) %>% 
+#   select(paper_id, author, year, genus_species, genetic_region, strain, accession_number, notes) %>% 
+#   separate(genus_species,c("genus","species","subspecies","extra"),sep=" ") %>% 
+#   unite(col=genus_species, c(genus,species,subspecies,extra), sep='_', na.rm=TRUE) %>% 
+#   left_join(cleanNames) %>% 
+#   right_join(geneticData) %>% 
+#   filter(!is.na(accession_number), accession_number!='')
+# 
+# uniqueAccessionNumbers <- accessionNumbers %>% 
+#   select(accession_number) %>% 
+#   unique()
+# # write.csv(uniqueAccessionNumbers, 'accessionNumbers_homeAway.csv', row.names=F)
+# 
+# proportionFamiliar <- accessionNumbers %>% 
+#   left_join(read.csv('home and away sequence data\\sequence_strain species.csv'))
 
 
 
