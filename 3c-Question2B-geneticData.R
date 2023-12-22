@@ -80,24 +80,16 @@ plantData <- read.csv("legume_strain diversity_meta analysis_plant data.csv") %>
 
 plantData[plantData==""]<-NA
 
+#Relating number of nodules collected to strain richness. Below a cutoff of 3, the number of strains is nearly always equal to the number of nodules. At 3 and up, this is less of a problem. Subsetting data to 3+ nodules.
+ggplot(data=plantData, aes(x=num_nodules, y=strain_richness)) +
+  geom_jitter() +
+  geom_abline(slope=1) +
+  coord_cartesian(xlim=c(0,10), ylim=c(0,10)) +
+  xlab('Number of Nodules Sampled') + ylab('Strain Richness')
+# ggsave('C:\\Users\\kjkomatsu\\UNCG\\Kathryn Bloodworth - Invasive Legume Meta-Analysis\\Figures\\SuppFig1_numNodules.png', width=6, height=6, units='in', dpi=300, bg='white')
+
 
 ##### determine what species have home/away or native/non-native comparisons and genetic data #####
-homeAway <- plantData %>% 
-  filter(compares_homeaway==1) %>% #39 observations of home and away
-  filter(genbank==1) %>% #20 observations of those that have genetic data
-  group_by(clean_name, plant_status) %>% 
-  summarise(gene_regions=length(unique(genetic_region)),
-            studies=length(unique(paper_id))) %>% 
-  ungroup() #8 legume spp with home/away and genetic data, most of which have info for multiple gene regions
-
-nativeInvasive <- plantData %>% 
-  filter(compares_natinv==1) %>% #471 observations with native/non-native comparison
-  filter(genbank==1) %>%  #325 of those that have genetic data
-  group_by(clean_name, plant_status) %>% 
-  summarise(gene_regions=length(unique(genetic_region)),
-            studies=length(unique(paper_id))) %>% 
-  ungroup() #24 introduced with genetic data that can be compared to at least one native species in the study
-
 allSpp <- plantData %>% 
   filter(num_nodules>2) %>%
   select(clean_name, plant_status, compares_homeaway, compares_natinv, genetic_region) %>% 
@@ -110,12 +102,6 @@ allSpp <- plantData %>%
   mutate(both_ranges=native+introduced) %>% 
   filter(both_ranges==2) %>%  #35 species * region combos
   select(-native, -introduced)
-
-#Relating number of nodules collected to strain richness. Below a cutoff of 3, the number of strains is nearly always equal to the number of nodules. At 3 and up, this is less of a problem. Subsetting data to 3+ nodules.
-ggplot(data=plantData, aes(x=num_nodules, y=strain_richness)) +
-  geom_jitter() +
-  geom_abline(slope=1) +
-  coord_cartesian(xlim=c(0,10), ylim=c(0,10))
 
 length(unique(allSpp$clean_name)) #16 species that have the same gene region for both native and introduced ranges
 
@@ -199,9 +185,10 @@ ggplot(data=nativeInvasiveGenetic,
   ylab('Strain Richness') + xlab('Plant Status') +
   scale_x_discrete(breaks=c('native', 'introduced'),
                    limits=c('native', 'introduced'),
-                   labels=c('Native\n(N=15)', 'Introduced\n(N=15)'),
-                   expand = expansion(mult = 2.5)) +
+                   labels=c('Native\n(N=15)', 'Introduced\n(N=15)')
+                   # , expand = expansion(mult = 2.5)
+                   ) +
   scale_color_simpsons() +
   theme(legend.position='none') +
-  coord_cartesian(xlim=c(1.35, 1.65))
-# ggsave('C:\\Users\\kjkomatsu\\UNCG\\Kathryn Bloodworth - Invasive Legume Meta-Analysis\\Figures\\Fig2b_HomeAway_acrossStudies.png', width=12, height=12, units='in', dpi=300, bg='white')
+  coord_cartesian(xlim=c(1.5, 1.8))
+# ggsave('C:\\Users\\kjkomatsu\\UNCG\\Kathryn Bloodworth - Invasive Legume Meta-Analysis\\Figures\\Fig2b_HomeAway_acrossStudies.png', width=9, height=9, units='in', dpi=300, bg='white')
