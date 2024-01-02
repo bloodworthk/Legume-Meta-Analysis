@@ -14,11 +14,7 @@ library(tidyverse)
 #### Set Working Directory ####
 
 #Bloodworth - Mac
-setwd("/Volumes/GoogleDrive/My Drive/Projects/Legume-Meta Analysis")
-
-#Bloodworth - PC
-setwd("G:/My Drive/Projects/Legume-Meta Analysis")
-
+setwd("~/Documents/GitHub/Legume-Meta-Analysis/Legume-Meta Analysis_Data_etc")
 
 #### Read in Data ####
 
