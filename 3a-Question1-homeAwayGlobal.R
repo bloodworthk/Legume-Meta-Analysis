@@ -3,6 +3,8 @@
 
 setwd('G:\\.shortcut-targets-by-id\\1w2OXIzBKQqFZ0BCeKP7C9pX36ViGDPBj\\Legume-Meta Analysis\\Data') #kim's wd
 
+setwd('G:\\.shortcut-targets-by-id\\1w2OXIzBKQqFZ0BCeKP7C9pX36ViGDPBj\\Legume-Meta Analysis\\Data')
+
 library(car)
 library(lme4)
 library(lmerTest)
@@ -49,7 +51,7 @@ cleanNames <- read.csv('legume_clean_names.csv') %>%
 # getting native/invasive status for each study and legume species
 plantStatus <- read.csv('legume_strain diversity_meta analysis_plant associations_edited names_presence absence.csv') %>% 
   left_join(cleanNames) %>%
-  rename(paper_id=ï..paper_id) %>% 
+  #rename(paper_id=ï..paper_id) %>% 
   select(paper_id, clean_name, plant_status, sample_country) %>% 
   unique()
 
@@ -81,7 +83,7 @@ plantData <- read.csv("legume_strain diversity_meta analysis_plant data.csv") %>
 plantData[plantData==""]<-NA
 
 globalStatus <- read.csv('legume_strain diversity_meta analysis_plant associations_edited names_presence absence.csv') %>% 
-  rename(paper_id=ï..paper_id) %>% 
+  #rename(paper_id=ï..paper_id) %>% 
   left_join(cleanNames) %>% 
   mutate(global_plant_status=ifelse((exo_NA+exo_SA+exo_AU+exo_AS+exo_EU+exo_AF)>0,'introduced','native')) %>% 
   select(paper_id, clean_name, global_plant_status) %>% 
@@ -130,3 +132,40 @@ ggplot(data=barGraphStats(data=homeAwayAll, variable="strain_richness", byFactor
   annotate('text', x=2, y=10.5, label='b', size=6) +
   theme(legend.position='none')
 # ggsave('C:\\Users\\kjkomatsu\\UNCG\\Kathryn Bloodworth - Invasive Legume Meta-Analysis\\Figures\\Fig1_HomeAway_allSpecies.png', width=6, height=6, units='in', dpi=300, bg='white')
+
+
+
+
+
+# Question 2A
+
+paper_plant_status <- plantData %>% 
+  filter(num_nodules>2) %>%
+  filter(!is.na(clean_name),
+         compares_homeaway==0)
+
+hist(paper_plant_status$strain_richness)
+hist(log(paper_plant_status$strain_richness))
+
+
+model2a.1 <- lm(log(strain_richness)~plant_status*clean_name, paper_plant_status)
+anova(model2a.1)
+plot(model2a.1)
+residuals <- resid(model2a.1)
+qqnorm(residuals)
+hist(residuals)
+
+#Question 2A figure
+
+df_summary_root <- emm_summary.below %>% group_by(Carbon, Mutualist) %>% dplyr::summarize(mean_value = mean(Root_biomass), sd=sd(Root_biomass), se = sqrt(var(Root_biomass)/length(Root_biomass)), lower = mean(Root_biomass) - qt(1- alpha/2, (n() - 1))*sd(Root_biomass)/sqrt(n()),
+                                                                                          upper = mean(Root_biomass) + qt(1- alpha/2, (n() - 1))*sd(Root_biomass)/sqrt(n()))
+##root figure
+x.expression <- expression(CO[2] ~ Treatment~(ppm))
+
+q <- ggplot(emm_summary.below, aes(x=Carbon, y=emmean, group = Mutualist, color=Mutualist))+ geom_line(linetype="dashed", size= 1.5) +
+  geom_point(aes(shape=Mutualist), size = 5)+ geom_ribbon(aes(ymin=lower.CL,ymax=upper.CL, fill=Mutualist), line_type = "dashed", alpha=0.1)  + theme_bw()+ scale_x_discrete(limits = c("400", "600", "1000"), expand = c(0.05, 0.05)) +
+  labs(x = x.expression, y = "Root biomass (g)") + ggplot2::theme(axis.text.x = element_text(color = "black", size = 16, angle = 0, hjust = 1, vjust = 0, face = "plain"), axis.text.y = element_text(color = "black", size = 16, angle = 0, hjust = 1, vjust = 0, face = "plain"),  axis.title.x = element_text(color = "black", size = 16, angle = 0, hjust = .5, vjust = 0, face = "plain"), axis.title.y = element_text(color = "black", size = 16, angle = 90, hjust = .5, vjust = 1.5, face = "plain"))+ ggplot2::theme(legend.text=element_text(size=14)) + ggplot2::theme (legend.title = element_text(size=16)) + ggplot2::theme(panel.border = element_rect(colour = "black", fill=NA, size=2)) +  ggplot2::theme(axis.ticks.length=unit(0.15,"cm"), axis.ticks = element_line(size = 1)) + ggplot2::theme(panel.grid = element_blank(), panel.background = element_rect(fill="white")) + ggplot2::theme(legend.position = "top") + ggplot2::scale_color_manual(values = c("#FF7F50",
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     "#999999","#009E73", "#1f77b4"))+ scale_shape_manual(values = c(15, 16, 17, 18))
+
+q
+
