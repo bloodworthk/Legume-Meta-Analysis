@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # load packages
 pacman::p_load(ggplot2, lme4,lmerTest, tidyverse, dplyr, readr, olsrr)
 # set working directory for Kathryn - mac
-knitr::opts_knit$set(root.dir = '/Volumes/GoogleDrive/My Drive/Projects/Legume-Meta Analysis/Data')
+knitr::opts_knit$set(root.dir = "~/Documents/GitHub/Legume-Meta-Analysis/Legume-Meta Analysis_Data_etc/Data")
 ```
 
 ```{r Set ggplot base}
@@ -27,12 +27,12 @@ theme_update(axis.title.x=element_text(size=30, vjust=-0.35, margin=margin(t=15)
 
 ### Starting a new analysis and this chunk is for loading files, Plant_Associations is the cleaned file
 ```{r Load in Plant Associations and clean}
-Clean_Species<-read_csv("legume_clean_names.csv") %>% 
+Clean_Species<-read_csv("~/Documents/GitHub/Legume-Meta-Analysis/Legume-Meta Analysis_Data_etc/Data/legume_clean_names.csv") %>% 
   filter(old_genus_species!="") %>% 
   separate(old_genus_species,c("genus","species","subspecies","extra"),sep=" ") %>% 
   unite(col=genus_species, c(genus,species,subspecies,extra), sep='_',na.rm=TRUE)
 
-Plant_Associations<-read.csv("legume_strain diversity_meta analysis_plant associations_edited names_presence absence.csv") %>% pivot_longer(names_to = "rhizobia_sp", values_to = "presence_absence", cols=Bradyrhizobium_nitroreducens:Paraburkholderia_caribensis)
+Plant_Associations<-read.csv("~/Documents/GitHub/Legume-Meta-Analysis/Legume-Meta Analysis_Data_etc/Data/legume_strain diversity_meta analysis_plant associations_edited names_presence absence.csv") %>% pivot_longer(names_to = "rhizobia_sp", values_to = "presence_absence", cols=Bradyrhizobium_nitroreducens:Paraburkholderia_caribensis)
 
 ##Now filtering out row crop and 999, 0 and 1 presence and absence and joining clean_species
 Plant_Associations_Clean <- Plant_Associations %>%
@@ -49,7 +49,7 @@ colnames(Plant_Associations_Clean)
 ```
 
 ```{r Load in Plant Associations and clean}
-Plant_Data<-read.csv("legume_strain diversity_meta analysis_plant data.csv")
+Plant_Data<-read.csv("~/Documents/GitHub/Legume-Meta-Analysis/Legume-Meta Analysis_Data_etc/Data/legume_strain diversity_meta analysis_plant data.csv")
 
 ##Now filtering out row crop and 999, 0 and 1 presence and absence and joining clean_species
 Plant_Data_Clean <- Plant_Data %>%
@@ -94,11 +94,13 @@ Native_NonNative_N<-Native_NonNative_Fig1 %>%
 ```
 
 
-ggplot(Native_NonNative_Fig1,aes(x=Graph_x,y=avg_strain_richness))+
+ggplot(Native_NonNative_Fig1,aes(x=Graph_x,y=avg_strain_richness,fill=Graph_x))+
   geom_boxplot()+
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10))+
-  xlab("Plant Status")+
+  xlab("Local Plant Status")+
   ylab("Rhizobial Strain Richness")+
+  scale_fill_manual(values=c("#E2E4DE","#A79371"))+
+  theme(legend.position="none")+
   expand_limits(y=c(0,25))
 
 ```{r Create Figure for Question 1: Boxplot}
