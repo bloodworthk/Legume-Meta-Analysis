@@ -46,7 +46,7 @@ Plant_Data<-read.csv("Data/legume_strain diversity_meta analysis_plant data.csv"
   #change all 999 to NAs
   mutate_all(~na_if(., 999)) %>% 
   left_join(Clean_Species) %>% 
-  select(genus_species,new_name,1:32)
+  select(genus_species,new_name,1:29)
 Plant_Data[Plant_Data==""]<-NA
 
 #Read in strain diversity info and add NA for anywhere that has a blank

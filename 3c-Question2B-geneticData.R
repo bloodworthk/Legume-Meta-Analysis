@@ -182,13 +182,14 @@ ggplot(data=nativeInvasiveGenetic,
                   # box.padding = 0.5, point.padding = 0.5,
                   # segment.color = 'transparent'
                   ) +
-  ylab('Strain Richness') + xlab('Plant Status') +
+  ylab('Rhizobial Strain Richness') + xlab('Local Plant Status') +
   scale_x_discrete(breaks=c('native', 'introduced'),
                    limits=c('native', 'introduced'),
-                   labels=c('Native\n(N=15)', 'Introduced\n(N=15)')
+                   labels=c('Native\n(n=15)', 'Non Native\n(n=15)')
                    # , expand = expansion(mult = 2.5)
                    ) +
   scale_color_simpsons() +
   theme(legend.position='none') +
-  coord_cartesian(xlim=c(1.5, 1.8))
+  coord_cartesian(xlim=c(1.5, 1.8))+
+  expand_limits(y=30)
 # ggsave('C:\\Users\\kjkomatsu\\UNCG\\Kathryn Bloodworth - Invasive Legume Meta-Analysis\\Figures\\Fig2b_HomeAway_acrossStudies.png', width=9, height=9, units='in', dpi=300, bg='white')
