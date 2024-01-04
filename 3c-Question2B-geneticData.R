@@ -178,7 +178,7 @@ ggplot(data=nativeInvasiveGenetic,
   geom_text_repel(data = subset(nativeInvasiveGenetic, plant_status == "introduced"),
                   aes(label = clean_name, size=14), 
                   nudge_x = 0.1, direction = "y", hjust = 0,
-                  max.overlaps=100
+                  max.overlaps=100,fontface = "italic"
                   # box.padding = 0.5, point.padding = 0.5,
                   # segment.color = 'transparent'
                   ) +
