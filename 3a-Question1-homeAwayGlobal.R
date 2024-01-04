@@ -5,6 +5,9 @@ setwd('G:\\.shortcut-targets-by-id\\1w2OXIzBKQqFZ0BCeKP7C9pX36ViGDPBj\\Legume-Me
 
 setwd('G:\\.shortcut-targets-by-id\\1w2OXIzBKQqFZ0BCeKP7C9pX36ViGDPBj\\Legume-Meta Analysis\\Data')
 
+#Bloodworth - Mac
+setwd("~/Documents/GitHub/Legume-Meta-Analysis/Legume-Meta Analysis_Data_etc/Data")
+
 library(car)
 library(lme4)
 library(lmerTest)
@@ -12,12 +15,14 @@ library(ggsci)
 library(ggrepel)
 library(tidyverse)
 
+
 theme_set(theme_bw())
-theme_update(axis.title.x=element_text(size=20, vjust=-0.35, margin=margin(t=15)), axis.text.x=element_text(size=16),
-             axis.title.y=element_text(size=20, angle=90, vjust=0.5, margin=margin(r=15)), axis.text.y=element_text(size=16),
-             plot.title = element_text(size=24, vjust=2),
-             panel.grid.major=element_blank(), panel.grid.minor=element_blank(),
-             legend.title=element_blank(), legend.text=element_text(size=20))
+theme_update(axis.title.x=element_text(size=30, vjust=-0.35, margin=margin(t=15)),
+             axis.text.x=element_text(size=30), axis.title.y=element_text(size=30, angle=90, vjust=0.5,
+                                                                          margin=margin(r=15)), axis.text.y=element_text(size=30), plot.title =
+               element_text(size=30, vjust=2), panel.grid.major=element_blank(),
+             panel.grid.minor=element_blank(), legend.title=element_blank(),
+             legend.text=element_text(size=40))
 
 ###bar graph summary statistics function
 #barGraphStats(data=, variable="", byFactorNames=c(""))
@@ -133,8 +138,17 @@ ggplot(data=barGraphStats(data=homeAwayAll, variable="strain_richness", byFactor
   theme(legend.position='none')
 # ggsave('C:\\Users\\kjkomatsu\\UNCG\\Kathryn Bloodworth - Invasive Legume Meta-Analysis\\Figures\\Fig1_HomeAway_allSpecies.png', width=6, height=6, units='in', dpi=300, bg='white')
 
-
-
+#Figure 1 boxplot (using in MS)
+ggplot(data=homeAwayAll,aes(x=global_plant_status,y=strain_richness,fill=global_plant_status))+
+  geom_boxplot()+
+  ylab('Rhizobial Strain Richness') + xlab('Global Plant Status') +
+  scale_x_discrete(breaks=c('native', 'introduced'),
+                   limits=c('native', 'introduced'),
+                   labels=c('Native\n(n=186)', 'Non Native\n(n=164)')) +
+  scale_fill_manual(values=c("#A79371","#E2E4DE"))+
+  theme(legend.position="none")+
+  expand_limits(y=c(0,65))+
+  scale_y_continuous(breaks=c(0,20,40,60))
 
 
 # Question 2A
