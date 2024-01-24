@@ -96,7 +96,8 @@ ggplot(Native_NonNative_Fig1,aes(x=Graph_x,y=avg_strain_richness,fill=Graph_x))+
   ylab("Rhizobial Strain Richness")+
   scale_fill_manual(values=c("#E2E4DE","#A79371"))+
   theme(legend.position="none")+
-  expand_limits(y=c(0,25))
+  expand_limits(y=c(0,25))+
+  geom_rect(mapping=aes(xmin=1, xmax=3.5, ymin=0, ymax=0), fill = "white", alpha=1)
 
 
 #### Figure 4 Stats ####
