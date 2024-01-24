@@ -144,7 +144,7 @@ ggplot(data=homeAwayAll,aes(x=global_plant_status,y=strain_richness,fill=global_
   ylab('Rhizobial Strain Richness') + xlab('Global Plant Status') +
   scale_x_discrete(breaks=c('native', 'introduced'),
                    limits=c('native', 'introduced'),
-                   labels=c('Native\n(n=186)', 'Non Native\n(n=164)')) +
+                   labels=c('Native\n(n=186)', 'Non-native\n(n=164)')) +
   scale_fill_manual(values=c("#A79371","#E2E4DE"))+
   theme(legend.position="none")+
   expand_limits(y=c(0,65))+
