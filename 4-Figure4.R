@@ -59,6 +59,9 @@ Plant_Data_Clean <- Plant_Data %>%
 
 colnames(Plant_Data_Clean)
 
+#read in paper information dataframe 
+Paper_Information<-read.csv("legume_strain diversity_meta analysis_paper information.csv")
+
 
 #### Figure 4 Dataframe Creation ####
 #r Create dataframe with just papers where native/non natives were studied within a given location
@@ -121,3 +124,21 @@ anova(Native_NonNative_lmer_2) #NS
 
 #### Write CSV file of Native_NonNative_Fig1 to add percent overlap data to
 write.csv(Native_NonNative_Fig1,"Fig3_Local_Overlap.csv")
+
+#### Write CSV File with all paper information used to create figure 4 & stats for figure 4 ####
+#using first part of code where "Native_NonNative_Fig1" dataframe was created to have full list of papers used in the study
+CSV_Papers <- Plant_Data_Clean %>%
+  #merge plant associations so that we can determine plant status, etc.
+  merge(Plant_Status,by = c("paper_id", "genus_species", "new_name", "cultivation.status","sample_country"),all=TRUE) %>% 
+  select(paper_id,new_name,paper_plant_status,annual_perennial,growth_form,sample_country,sample_continent,num_nodules,genetic_region,strain_richness,compares_natinv) %>% 
+  #only keep papers that looked at native and non native species within the same location
+  filter(compares_natinv==1) %>% 
+  na.omit(plant_paper_status) %>% 
+  mutate(Graph_x=ifelse(paper_plant_status=="native","Native (n=47)","Non-native (n=19)")) %>% 
+  #remove papers that no longer have a native or non-native partner after filtering steps
+  filter(!(paper_id %in% c(289,325))) %>% 
+  select(paper_id,sample_country) %>% 
+  left_join(Paper_Information) %>% 
+  unique()
+
+write.csv(CSV_Papers,"Fig4_Papers.csv")
