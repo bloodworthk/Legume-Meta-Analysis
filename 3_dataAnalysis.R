@@ -345,3 +345,12 @@ hist(Rhizobial_Associations_Condensed$diversity_sum)
 summary (Mixed_Model_Rhiz_Status_Strain_rich<- lmer(strain_rich_Mean ~ Plant_status + (1 | species_status_n) + (1 | num_nod_Mean), data = Rhiz_symbionts_Nod_Num))
 anova(Mixed_Model_Rhiz_Status_Strain_rich,type = 2)
 
+
+#### Create Supplemental Table 1 with paper information ####
+Fig2_Papers<-read.csv("Fig2_Papers.csv")
+Fig4_Papers<-read.csv("Fig4_Papers.csv")
+
+SupplementalTable1<-Fig2_Papers %>%
+  rbind(Fig4_Papers) %>% 
+  select(author,year,title,sample_country) %>% 
+  unique()

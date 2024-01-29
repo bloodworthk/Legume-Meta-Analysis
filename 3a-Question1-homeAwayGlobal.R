@@ -192,3 +192,20 @@ q <- ggplot(emm_summary.below, aes(x=Carbon, y=emmean, group = Mutualist, color=
 
 q
 
+#### Creating CSV to add to Supplemental Table 1 ####
+## creating dataframe using homeAwayAll to make csv with paper information ##
+
+
+CSV_Papers_Fig2 <- plantData %>% 
+  filter(num_nodules>2) %>%
+  filter(!is.na(clean_name),
+         compares_homeaway==0) %>% 
+  left_join(globalStatus) %>% 
+  filter(!is.na(strain_richness)) %>% 
+  select(paper_id,sample_country,clean_name) %>% 
+  left_join(Paper_Information) %>% 
+  unique()
+
+#######note -- need to resave with species names and do the same in 4-Figure4 and update SupplementalTable Document in 3_dataAnalysis
+
+write.csv(CSV_Papers_Fig2,"Fig2_Papers.csv")
