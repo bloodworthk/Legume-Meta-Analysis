@@ -125,7 +125,8 @@ anova(Native_NonNative_lmer_2) #NS
 #### Write CSV file of Native_NonNative_Fig1 to add percent overlap data to
 write.csv(Native_NonNative_Fig1,"Fig3_Local_Overlap.csv")
 
-#### Write CSV File with all paper information used to create figure 4 & stats for figure 4 ####
+#### To be used in Supp Table 1 ####
+## Write CSV File with all paper information used to create figure 4 & stats for figure 4 ##
 #using first part of code where "Native_NonNative_Fig1" dataframe was created to have full list of papers used in the study
 CSV_Papers <- Plant_Data_Clean %>%
   #merge plant associations so that we can determine plant status, etc.
