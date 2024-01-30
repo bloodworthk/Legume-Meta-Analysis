@@ -352,5 +352,8 @@ Fig4_Papers<-read.csv("Fig4_Papers.csv")
 
 SupplementalTable1<-Fig2_Papers %>%
   rbind(Fig4_Papers) %>% 
-  select(author,year,title,sample_country) %>% 
+  select(paper_id,author,year,title,clean_name,sample_country) %>% 
   unique()
+
+#save supplemental table 1#
+write.csv(SupplementalTable1,"SupplementalTable1.csv")

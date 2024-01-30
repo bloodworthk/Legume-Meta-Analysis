@@ -206,6 +206,6 @@ CSV_Papers_Fig2 <- plantData %>%
   left_join(Paper_Information) %>% 
   unique()
 
-#######note -- need to resave with species names and do the same in 4-Figure4 and update SupplementalTable Document in 3_dataAnalysis
+#######note -- need to resave with species names and do the same in 4-Figure4 and update SupplementalTable Document in 3_dataAnalysis 
 
 write.csv(CSV_Papers_Fig2,"Fig2_Papers.csv")

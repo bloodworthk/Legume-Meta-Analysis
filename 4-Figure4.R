@@ -138,8 +138,9 @@ CSV_Papers <- Plant_Data_Clean %>%
   mutate(Graph_x=ifelse(paper_plant_status=="native","Native (n=47)","Non-native (n=19)")) %>% 
   #remove papers that no longer have a native or non-native partner after filtering steps
   filter(!(paper_id %in% c(289,325))) %>% 
-  select(paper_id,sample_country) %>% 
+  select(paper_id,sample_country,new_name) %>% 
   left_join(Paper_Information) %>% 
-  unique()
+  unique() %>% 
+  rename(clean_name=new_name)
 
 write.csv(CSV_Papers,"Fig4_Papers.csv")
