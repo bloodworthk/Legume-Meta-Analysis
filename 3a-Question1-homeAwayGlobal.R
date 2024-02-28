@@ -140,7 +140,7 @@ ggplot(data=barGraphStats(data=homeAwayAll, variable="strain_richness", byFactor
 
 #Figure 1 boxplot (using in MS)
 ggplot(data=homeAwayAll,aes(x=global_plant_status,y=strain_richness,fill=global_plant_status))+
-  geom_boxplot()+
+  geom_boxplot(outlier.size=3)+
   ylab('Rhizobial Strain Richness') + xlab('Global Plant Status') +
   scale_x_discrete(breaks=c('native', 'introduced'),
                    limits=c('native', 'introduced'),

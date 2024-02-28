@@ -93,7 +93,7 @@ Native_NonNative_N<-Native_NonNative_Fig1 %>%
 
 #### Figure 4 Creation ####
 ggplot(Native_NonNative_Fig1,aes(x=Graph_x,y=avg_strain_richness,fill=Graph_x))+
-  geom_boxplot()+
+  geom_boxplot(outlier.size=3)+
   scale_x_discrete(labels = function(x) str_wrap(x, width = 10))+
   xlab("Local Plant Status")+
   ylab("Rhizobial Strain Richness")+
