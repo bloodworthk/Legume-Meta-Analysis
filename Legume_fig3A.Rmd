@@ -1,0 +1,86 @@
+---
+title: "3a"
+author: "Smriti Pehim Limbu"
+date: "2024-02-28"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+#package upload
+```{r}
+pacman::p_load(knitr, ggplot2,ggrepel, lmerTest, tidyverse, dplyr, readr, lme4, plyr, data.table, wesanderson)
+```
+#uploading data 
+```{r}
+setwd("G:/.shortcut-targets-by-id/1w2OXIzBKQqFZ0BCeKP7C9pX36ViGDPBj/Legume-Meta Analysis/Data")
+Plant_Data <- read.csv("legume_strain diversity_meta analysis_plant data.csv")
+
+```
+# Question 3A
+
+```{r}
+paper_plant_status <- plantData %>%
+  filter(num_nodules>2) %>%
+  filter(!is.na(clean_name),
+         compares_homeaway==1) %>% group_by(clean_name) %>% filter(all(c("native", "introduced") %in% plant_status))
+
+str(paper_plant_status)
+
+hist(paper_plant_status$strain_richness)
+hist(log(paper_plant_status$strain_richness))
+
+
+model3b <- lm(log(strain_richness)~plant_status*clean_name, paper_plant_status)
+anova(model3b)
+plot(model3b)
+residuals <- resid(model3b)
+qqnorm(residuals)
+hist(residuals)
+
+#Question 3b figure
+
+alpha <- 0.05
+
+# Question 3A
+
+paper_plant_status <- plantData %>%
+  filter(num_nodules>2) %>%
+  filter(!is.na(clean_name),
+         compares_homeaway==1) %>% group_by(clean_name) %>% filter(all(c("native", "introduced") %in% plant_status))
+
+str(paper_plant_status)
+
+hist(paper_plant_status$strain_richness)
+hist(log(paper_plant_status$strain_richness))
+
+
+model2a <- lm(log(strain_richness)~plant_status*clean_name, paper_plant_status)
+anova(model2a)
+plot(model2a)
+residuals <- resid(model2a)
+qqnorm(residuals)
+hist(residuals)
+
+#Question 3A figure
+
+alpha <- 0.05
+
+df_summary <- paper_plant_status %>% group_by(clean_name,plant_status) %>% dplyr::summarize(mean_value = mean(strain_richness), sd=sd(strain_richness), se = sqrt(var(strain_richness)/length(strain_richness))) %>%  mutate(plant_status=case_when(plant_status =="introduced"~ "Non-native", TRUE~plant_status))
+
+end_point <- df_summary %>% filter(plant_status=="Non-native")
+
+df_summary$clean_name <- sprintf('<i>%s</i>', df_summary$clean_name)
+
+
+paper_status_fig <- ggplot(df_summary, aes(x=plant_status, y=mean_value, group = clean_name, color=clean_name))+ geom_line( size= 1) +
+  geom_point(shape=20, size = 5)  + theme_bw() +geom_text_repel(data=end_point,aes(label=clean_name), nudge_x = 1.1, fontface="italic")+ scale_x_discrete(expand = c(0.1, 0),labels=c('Native\n(N=8)', 'Non-native\n(N=13)'))+ scale_color_manual(values = c("darkblue","red","#66c2ff","#ffcc66")) + labs(x="Local Plant Status", y = "Rhizobial Strain Richness") + theme(text = element_text(face="italic")) + theme_bw() + ggplot2::theme(axis.text.x = element_text(color = "black", size = 10, angle = 0, hjust = 0.5, vjust = 0, face = "plain"), axis.text.y = element_text(color = "black", size = 10, angle = 0, hjust = 1, vjust = 0, face = "plain"),  axis.title.x = element_text(color = "black", size = 14, angle = 0, hjust = .5, vjust = 0, face = "bold"), axis.title.y = element_text(color = "black", size = 14, angle = 90, hjust = .5, vjust = 1.5, face = "bold"))+ ggplot2::theme(legend.text=element_text(size=10)) + ggplot2::theme (legend.title = element_text(size=10)) + ggplot2::theme(panel.border = element_rect(colour = "gray", fill=NA, size=0.5)) +  ggplot2::theme(axis.ticks.length=unit(0.15,"cm"), axis.ticks = element_line(size = 1)) + ggplot2::theme(panel.grid = element_blank(), panel.background = element_rect(fill="white"))
+paper_status_fig
+
+theme_set(theme_bw())
+theme_update(axis.title.x=element_text(size=20, vjust=-0.35, margin=margin(t=15)), axis.text.x=element_text(size=16),
+             axis.title.y=element_text(size=20, angle=90, vjust=0.5, margin=margin(r=15)), axis.text.y=element_text(size=16),
+             plot.title = element_text(size=24, vjust=2),
+             panel.grid.major=element_blank(), panel.grid.minor=element_blank(),
+             legend.title=element_blank(), legend.text=element_text(size=20))
