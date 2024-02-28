@@ -2,6 +2,7 @@
 #Authors: Kim Komatsu, Kathryn Bloodworth, Smriti Pehim Limbu 
 
 setwd('G:\\.shortcut-targets-by-id\\1w2OXIzBKQqFZ0BCeKP7C9pX36ViGDPBj\\Legume-Meta Analysis\\Data') #kim's wd
+setwd('G:\\.shortcut-targets-by-id\\1w2OXIzBKQqFZ0BCeKP7C9pX36ViGDPBj\\Legume-Meta Analysis\\Data') #Smriti's wd
 
 library(car)
 library(lme4)
@@ -43,13 +44,13 @@ barGraphStats <- function(data, variable, byFactorNames) {
 cleanNames <- read.csv('legume_clean_names.csv') %>% 
   separate(old_genus_species,c("genus","species","subspecies","extra"),sep=" ") %>% 
   unite(col=genus_species, c(genus,species,subspecies,extra), sep='_',na.rm=TRUE) %>% 
-  rename(clean_name=new_name) %>% 
+ dplyr::rename(clean_name=new_name) %>% 
   select(-notes)
 
 # getting native/invasive status for each study and legume species
 plantStatus <- read.csv('legume_strain diversity_meta analysis_plant associations_edited names_presence absence.csv') %>% 
   left_join(cleanNames) %>%
-  rename(paper_id=ï..paper_id) %>% 
+  #rename(paper_id=ï..paper_id) %>% 
   select(paper_id, clean_name, plant_status, sample_country) %>% 
   unique()
 
@@ -81,7 +82,7 @@ plantData <- read.csv("legume_strain diversity_meta analysis_plant data.csv") %>
 plantData[plantData==""]<-NA
 
 globalStatus <- read.csv('legume_strain diversity_meta analysis_plant associations_edited names_presence absence.csv') %>% 
-  rename(paper_id=ï..paper_id) %>% 
+ # rename(paper_id=ï..paper_id) %>% 
   left_join(cleanNames) %>% 
   mutate(global_plant_status=ifelse((exo_NA+exo_SA+exo_AU+exo_AS+exo_EU+exo_AF)>0,'introduced','native')) %>% 
   select(paper_id, clean_name, global_plant_status) %>% 
@@ -130,3 +131,47 @@ ggplot(data=barGraphStats(data=homeAwayAll, variable="strain_richness", byFactor
   annotate('text', x=2, y=10.5, label='b', size=6) +
   theme(legend.position='none')
 # ggsave('C:\\Users\\kjkomatsu\\UNCG\\Kathryn Bloodworth - Invasive Legume Meta-Analysis\\Figures\\Fig1_HomeAway_allSpecies.png', width=6, height=6, units='in', dpi=300, bg='white')
+
+
+
+## Question 2A data and model
+
+paper_plant_status <- plantData %>%
+  filter(num_nodules>2) %>%
+  filter(!is.na(clean_name),
+         compares_homeaway==1) %>% group_by(clean_name) %>% filter(all(c("native", "introduced") %in% plant_status))
+
+str(paper_plant_status)
+
+hist(paper_plant_status$strain_richness)
+hist(log(paper_plant_status$strain_richness))
+
+
+model2a <- lm(log(strain_richness)~plant_status*clean_name, paper_plant_status)
+anova(model2a)
+plot(model2a)
+residuals <- resid(model2a)
+qqnorm(residuals)
+hist(residuals)
+
+#Question 2A figure
+
+alpha <- 0.05
+df_summary <- paper_plant_status %>% group_by(clean_name,plant_status) %>% dplyr::summarize(mean_value = mean(strain_richness))
+
+df_summary$plant_status[df_summary$plant_status == "introduced"] <- "Non-native"
+df_summary$plant_status[df_summary$plant_status == "native"] <- "Native"
+
+df_summary1 <- paper_plant_status %>% group_by(clean_name,plant_status, proportion_novel_strains, proportion_familiar_strains) %>% dplyr::summarize(mean_value = mean(strain_richness))
+
+
+q <- ggplot(df_summary, aes(x=plant_status, y=mean_value, group = clean_name, color=clean_name))+ geom_line( size= 1.5) +
+  geom_point(aes(shape=clean_name), size = 5)  + theme_bw() +
+  labs(x = "Plant Status", y = "Strain Richness") + ggplot2::theme(axis.text.x = element_text(color = "black", size = 16, angle = 0, hjust = 1, vjust = 0, face = "plain"), axis.text.y = element_text(color = "black", size = 16, angle = 0, hjust = 1, vjust = 0, face = "plain"),  axis.title.x = element_text(color = "black", size = 16, angle = 0, hjust = .5, vjust = 0, face = "plain"), axis.title.y = element_text(color = "black", size = 16, angle = 90, hjust = .5, vjust = 1.5, face = "plain"))+ ggplot2::theme(legend.text=element_text(size=14)) + ggplot2::theme (legend.title = element_text(size=16)) + ggplot2::theme(panel.border = element_rect(colour = "black", fill=NA, size=2)) +  ggplot2::theme(axis.ticks.length=unit(0.15,"cm"), axis.ticks = element_line(size = 1)) + ggplot2::theme(panel.grid = element_blank(), panel.background = element_rect(fill="white"))
+q
+ggsave("aa.tiff", q, dpi=300)
+
+length(unique(paper_plant_status$))
+
+
+
