@@ -2,6 +2,8 @@
 #Authors: Kim Komatsu, Kathryn Bloodworth, Smriti Pehim Limbu 
 
 setwd('G:\\.shortcut-targets-by-id\\1w2OXIzBKQqFZ0BCeKP7C9pX36ViGDPBj\\Legume-Meta Analysis\\Data') #kim's wd
+#Bloodworth - Mac
+setwd("~/Documents/GitHub/Legume-Meta-Analysis/Legume-Meta Analysis_Data_etc/Data")
 
 library(car)
 library(lme4)
