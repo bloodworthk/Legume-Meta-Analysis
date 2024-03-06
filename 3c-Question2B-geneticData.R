@@ -187,7 +187,7 @@ ggplot(data=nativeInvasiveGenetic,
   ylab('Rhizobial Strain Richness') + xlab('Local Plant Status') +
   scale_x_discrete(breaks=c('native', 'introduced'),
                    limits=c('native', 'introduced'),
-                   labels=c('Native\n(n=15)', 'Non Native\n(n=15)')
+                   labels=c('Native\n(n=15)', 'Non-native\n(n=15)')
                    # , expand = expansion(mult = 2.5)
                    ) +
   scale_color_simpsons() +

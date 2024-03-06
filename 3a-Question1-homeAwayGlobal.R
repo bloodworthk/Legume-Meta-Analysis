@@ -182,9 +182,28 @@ df_summary$plant_status[df_summary$plant_status == "native"] <- "Native"
 df_summary1 <- paper_plant_status %>% group_by(clean_name,plant_status, proportion_novel_strains, proportion_familiar_strains) %>% dplyr::summarize(mean_value = mean(strain_richness))
 
 
-q <- ggplot(df_summary, aes(x=plant_status, y=mean_value, group = clean_name, color=clean_name))+ geom_line( size= 1.5) +
-  geom_point(aes(shape=clean_name), size = 5)  + theme_bw() +
-  labs(x = "Plant Status", y = "Strain Richness") + ggplot2::theme(axis.text.x = element_text(color = "black", size = 16, angle = 0, hjust = 1, vjust = 0, face = "plain"), axis.text.y = element_text(color = "black", size = 16, angle = 0, hjust = 1, vjust = 0, face = "plain"),  axis.title.x = element_text(color = "black", size = 16, angle = 0, hjust = .5, vjust = 0, face = "plain"), axis.title.y = element_text(color = "black", size = 16, angle = 90, hjust = .5, vjust = 1.5, face = "plain"))+ ggplot2::theme(legend.text=element_text(size=14)) + ggplot2::theme (legend.title = element_text(size=16)) + ggplot2::theme(panel.border = element_rect(colour = "black", fill=NA, size=2)) +  ggplot2::theme(axis.ticks.length=unit(0.15,"cm"), axis.ticks = element_line(size = 1)) + ggplot2::theme(panel.grid = element_blank(), panel.background = element_rect(fill="white"))
+#figure 2b
+
+q <- ggplot(df_summary, aes(x=plant_status, y=mean_value, group = interaction(clean_name), color= interaction(clean_name))) +
+  geom_line( size= 1.5) +
+  geom_point(aes(shape=clean_name), size = 5) +
+  geom_text_repel(data = subset(df_summary, plant_status == "Non-native"),
+                  aes(label = clean_name, size=14), 
+                  nudge_x = 0.1, direction = "y", hjust = 0,
+                  max.overlaps=100,fontface = "italic"
+                  # box.padding = 0.5, point.padding = 0.5,
+                  # segment.color = 'transparent'  
+                  ) +
+  theme(legend.position = "none")+
+  ylab('Rhizobial Strain Richness') + xlab('Local Plant Status') +
+  scale_x_discrete(breaks=c('Native', 'Non-native'),
+                   limits=c('Native', 'Non-native'),
+                   labels=c('Native\n(n=8)', 'Non-native\n(n=13)')
+                   # , expand = expansion(mult = 2.5)
+  )+
+  scale_color_manual(values=c("#414535","#8C4843","#189993","#AB92BF"))+
+  coord_cartesian(xlim=c(1.5, 1.8))+
+  expand_limits(y=c(0,15),by=5)
 q
 ggsave("aa.tiff", q, dpi=300)
 
