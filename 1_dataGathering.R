@@ -1,8 +1,8 @@
 #### Legume Meta Analysis ####
 #Created by Kathryn Bloodworth, Smriti Pehim Limbu, and Kimberly Komatsu
+#Just used in 2022 search - in 2014 all papers were manually downloaded and sorted through
 
 #### Set working directory #### 
-#should be one drive folder
 
 #Kathryn Bloodworth - PC
 setwd("C:/Users/kjbloodw/OneDrive - UNCG/Invasive Legume Meta-Analysis")
