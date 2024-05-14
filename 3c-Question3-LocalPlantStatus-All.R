@@ -43,7 +43,7 @@ Plant_Associations_Clean <- Plant_Associations %>%
   select(-introduced,-invasive,-cultivated) %>% 
   rename(paper_plant_status=plant_status) %>% 
   mutate(global_plant_status=ifelse((exo_NA+exo_SA+exo_AU+exo_AS+exo_EU+exo_AF)>0,1,0)) %>% 
-  filter(num_nodules>4) %>% 
+  filter(num_nodules>2) %>% 
   mutate(global_plant_status=ifelse(global_plant_status==1,"nonnative","native")) %>% 
   mutate(paper_plant_status=ifelse(paper_plant_status=="invasive","nonnative",ifelse(paper_plant_status=="introduced","nonnative", paper_plant_status)))
 
@@ -57,7 +57,7 @@ Plant_Data_Clean <- Plant_Data %>%
   rename(notes_plantdata=notes) %>% 
   left_join(Clean_Species) %>%
   filter(cultivation.status!="row crop", genus_species!="999", species!="sp",species!="spp",species!="sp.",paper_id!=142) %>% 
-  filter(num_nodules>4)
+  filter(num_nodules>2)
 
 colnames(Plant_Data_Clean)
 
@@ -80,9 +80,10 @@ Native_NonNative_Fig1 <- Plant_Data_Clean %>%
   #only keep papers that looked at native and non native species within the same location
   filter(compares_natinv==1) %>% 
   na.omit(plant_paper_status) %>% 
-  mutate(Graph_x=ifelse(paper_plant_status=="native","Native (n=47)","Non-native (n=19)")) %>% 
+  mutate(Graph_x=ifelse(paper_plant_status=="native","Native (n=57)","Non-native (n=19)")) %>% 
   #remove papers that no longer have a native or non-native partner after filtering steps
   filter(!(paper_id %in% c(289,325))) %>% 
+  filter(new_name!="Prosopis chilensis" | sample_country!="Kenya") %>% 
   #average across plant ID, species, and status
   group_by(paper_id,new_name,sample_country,paper_plant_status,annual_perennial,growth_form,sample_continent,Graph_x) %>% 
   summarise(avg_strain_richness=mean(as.numeric(strain_richness))) %>% 
@@ -91,7 +92,7 @@ Native_NonNative_Fig1 <- Plant_Data_Clean %>%
 #Calculate N number
 Native_NonNative_N<-Native_NonNative_Fig1 %>% 
   group_by(Graph_x) %>% 
-  summarise(status=length(new_name)) #47 native, 19 non native
+  summarise(status=length(new_name)) #57 native, 19 non native
 
 #### Figure 5 ####
 ggplot(Native_NonNative_Fig1,aes(x=Graph_x,y=avg_strain_richness,fill=Graph_x))+
@@ -124,6 +125,11 @@ ols_test_normality(Native_NonNative_Norm_TF) #normal
 Native_NonNative_lmer_2 <- lmerTest::lmer(data = Native_NonNative_Fig1, strain_richness_TF ~ paper_plant_status + (1|paper_id))
 anova(Native_NonNative_lmer_2) #NS
 
+
+#### Percent Overlap ####
+Overlap<-Native_NonNative_Fig1 %>%
+  left_join(Plant_Associations_Clean) %>% 
+  select(paper_id,new_name,sample_country,paper_plant_status,rhizobia_sp,presence_absence)
 #### Write CSV file of Native_NonNative_Fig1 to add percent overlap data to
 write.csv(Native_NonNative_Fig1,"Fig3_Local_Overlap.csv")
 
