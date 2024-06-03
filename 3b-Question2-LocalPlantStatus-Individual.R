@@ -145,6 +145,7 @@ ggplot(df_summary, aes(x=plant_status, y=mean_value, group = interaction(clean_n
   scale_shape_manual(values=c(16,17,15,18))+
   coord_cartesian(xlim=c(1.5, 2))+
   expand_limits(y=c(0,15),by=5)
+#Save at 1000 x 1000
 
 #### Question 2B data and model####
 
@@ -168,43 +169,9 @@ length(unique(allSpp$clean_name)) #16 species that have the same gene region for
 ##### mixed model for native/invasive using same gene region #####
 nativeInvasiveGenetic <- plantData %>% 
   right_join(allSpp) %>% 
-  select(paper_id, clean_name, plant_status, annual_perennial, growth_form, habitat_type, sample_country, 
-         sample_continent, num_nodules, num_plants, genetic_region, strain_richness, cultivation.status) %>%
-  mutate(genetic_region2=ifelse(genetic_region %in% c('16S', '16S-23S', '16S-ARDRA', '16S-IGS',
-                                                      '16S-RFLP', '16S rDNA', '16S_23S_RFLP', 
-                                                      '16S_ARDRA', '16S_BLAST', '16S_PCR_RFLP',
-                                                      '16S_rDNA', '16S_RFLP', 'ARDRA', 'PCR',
-                                                      'PCR_RFLP', '16S_PCR-RFLP', 'RFLP_16S',
-                                                      'RFLP', 'RFLP_PCR'), '16S',
-                        ifelse(genetic_region %in% c('23S', '23S_IVS', 'RFLP-23S'), '23S',
-                        ifelse(genetic_region %in% c('AFLP', 'AFLP_Pst-A', 'AFLP_Pst-G',
-                                                                    'AFLP_Pst-GC'), 'AFLP',
-                        ifelse(genetic_region %in% c('BOX', 'BOX-AIR', 'box-PCR', 'BOX-PCR',
-                                                     'Box_A1R-PCR', 'BOX_PCR', 'BoxA1R',
-                                                     'BOXA1R', 'BOXA1R-PCR', 'BOXAIR'), 'BOX',
-                        ifelse(genetic_region %in% c('CLUSTAL_W', 
-                                                     'Cluster Analysis'), 'cluster',
-                        ifelse(genetic_region %in% c('ERIC', 'ERIC-PCR', 'ERIC_PCR', 
-                                                     'RFLP-ERIC'), 'ERIC',
-                        ifelse(genetic_region %in% c('IGS', 'IGS_PCR-RFLP', 'RFLP-IGS', 
-                                                     'IGSS', 'ITS', 'RFLP_ITS'), 'ITS',
-                        ifelse(genetic_region %in% c('nif_KD', 'nifD', 'nifD-K', 'nifh',
-                                                     'nifH', 'nifH-nifDK', 'nifHD',
-                                                     'RFLP_nifH'), 'nif',
-                        ifelse(genetic_region %in% c('nodBC', 'nodC', 'nodC-nodA',
-                                                     'nodC-RFLP', 'nodA', 'nodA_PCR_RFLP',
-                                                     'nodD', 'nodD1', 'nodD2', 'nodDAB',
-                                                     'nodDF', 'nodF', 'nodY/K', 'RFLP_nodb3',
-                                                     'RFLP_nodA', 'RFLP_nodb1', 'RFLP_nodb4',
-                                                     'RFLP_nodb5', 'RFLP_nodC'), 'nod',
-                       ifelse(genetic_region %in% c('rep-PCR', 'REP_PCR', 'REP-PCR', 
-                                                    'rep_PCR', 'REP1R-I_REP2-I'), 'REP PCR',
-                       ifelse(genetic_region %in% c('PCR-RAPD', 'RAPD'), 'RAPD',
-                       ifelse(genetic_region %in% c('recA', 'recA-glnA-dnaK',
-                                                    'recA, glnII', 'recA-glnII-atpD'), 'recA',
-                       ifelse(genetic_region %in% c('glnA', 'glnB', 'glnII', 'gltA', 'gryB',
-                                                    'gyrA', 'gyrB'), 'gln',
-                              'other')))))))))))))) %>% 
+  filter(num_nodules>2) %>% 
+  select(paper_id, clean_name, plant_status, annual_perennial, growth_form, habitat_type, sample_country,sample_continent, num_nodules, num_plants, genetic_region, strain_richness, cultivation.status) %>%
+  mutate(genetic_region2=ifelse(genetic_region %in% c('16S', '16S-23S', '16S-ARDRA', '16S-IGS','16S-RFLP', '16S rDNA', '16S_23S_RFLP', '16S_ARDRA', '16S_BLAST', '16S_PCR_RFLP', '16S_rDNA', '16S_RFLP', 'ARDRA', 'PCR','PCR_RFLP', '16S_PCR-RFLP', 'RFLP_16S','RFLP', 'RFLP_PCR'), '16S',ifelse(genetic_region %in% c('23S', '23S_IVS', 'RFLP-23S'), '23S',ifelse(genetic_region %in% c('AFLP', 'AFLP_Pst-A', 'AFLP_Pst-G', 'AFLP_Pst-GC'), 'AFLP',ifelse(genetic_region %in% c('BOX', 'BOX-AIR', 'box-PCR', 'BOX-PCR','Box_A1R-PCR', 'BOX_PCR', 'BoxA1R','BOXA1R', 'BOXA1R-PCR', 'BOXAIR'), 'BOX',ifelse(genetic_region %in% c('CLUSTAL_W','Cluster Analysis'), 'cluster',ifelse(genetic_region %in% c('ERIC', 'ERIC-PCR', 'ERIC_PCR','RFLP-ERIC'), 'ERIC',ifelse(genetic_region %in% c('IGS', 'IGS_PCR-RFLP', 'RFLP-IGS','IGSS', 'ITS', 'RFLP_ITS'), 'ITS',ifelse(genetic_region %in% c('nif_KD', 'nifD', 'nifD-K', 'nifh','nifH', 'nifH-nifDK', 'nifHD','RFLP_nifH'), 'nif',ifelse(genetic_region %in% c('nodBC', 'nodC', 'nodC-nodA','nodC-RFLP', 'nodA', 'nodA_PCR_RFLP','nodD', 'nodD1', 'nodD2', 'nodDAB','nodDF', 'nodF', 'nodY/K', 'RFLP_nodb3','RFLP_nodA', 'RFLP_nodb1', 'RFLP_nodb4','RFLP_nodb5', 'RFLP_nodC'), 'nod',ifelse(genetic_region %in% c('rep-PCR', 'REP_PCR', 'REP-PCR', 'rep_PCR', 'REP1R-I_REP2-I'), 'REP PCR',ifelse(genetic_region %in% c('PCR-RAPD', 'RAPD'), 'RAPD',ifelse(genetic_region %in% c('recA', 'recA-glnA-dnaK','recA, glnII', 'recA-glnII-atpD'), 'recA',ifelse(genetic_region %in% c('glnA', 'glnB', 'glnII', 'gltA', 'gryB','gyrA', 'gyrB'), 'gln','other')))))))))))))) %>% 
   # filter(genetic_region2=='16S') %>%
   group_by(plant_status, clean_name) %>% #each species tested across different studies is a replicate (averaged across gene regions for species with multiple)
   summarise(strain_richness=mean(strain_richness)) %>%  
@@ -245,7 +212,7 @@ ggplot(data=nativeInvasiveGenetic,
   ylab('Rhizobial Strain Richness') + xlab('Local Plant Status') +
   scale_x_discrete(breaks=c('native', 'introduced'),
                    limits=c('native', 'introduced'),
-                   labels=c('Native\n(n=15)', 'Non-native\n(n=15)')
+                   labels=c('Native\n(n=16)', 'Non-native\n(n=16)')
                    # , expand = expansion(mult = 2.5)
                    ) +
   scale_color_simpsons() +

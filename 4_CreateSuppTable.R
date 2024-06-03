@@ -66,11 +66,12 @@ Table_File <- Question1 %>%
   unique() %>% 
   left_join(Plant_Associations_Clean) %>% 
   left_join(Paper_Information) %>%
+  #select(paper_id,clean_name,sample_country,Figure,author,year,journal) %>% 
   select(paper_id,author,year,journal,clean_name,sample_country,paper_plant_status,global_plant_status,Figure) %>%
   mutate(FigurePresence=1) %>% 
   unique() %>% 
   spread(key=Figure,value=FigurePresence,fill=NA)
 
   
-write.csv(Table_File,"~/Documents/GitHub/Legume-Meta-Analysis/Legume-Meta Analysis_Data_etc/Data/SupportingTable1_Help2.csv")
+write.csv(Table_File,"~/Documents/GitHub/Legume-Meta-Analysis/Legume-Meta Analysis_Data_etc/Data/SupportingTable1_Help3.csv")
 

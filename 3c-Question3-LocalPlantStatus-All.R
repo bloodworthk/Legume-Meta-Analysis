@@ -57,7 +57,8 @@ Plant_Data_Clean <- Plant_Data %>%
   rename(notes_plantdata=notes) %>% 
   left_join(Clean_Species) %>%
   filter(cultivation.status!="row crop", genus_species!="999", species!="sp",species!="spp",species!="sp.",paper_id!=142) %>% 
-  filter(num_nodules>2)
+  filter(num_nodules>2) %>% 
+  filter(num_nodules!=999)
 
 colnames(Plant_Data_Clean)
 
@@ -80,7 +81,7 @@ Native_NonNative_Fig1 <- Plant_Data_Clean %>%
   #only keep papers that looked at native and non native species within the same location
   filter(compares_natinv==1) %>% 
   na.omit(plant_paper_status) %>% 
-  mutate(Graph_x=ifelse(paper_plant_status=="native","Native (n=57)","Non-native (n=19)")) %>% 
+  mutate(Graph_x=ifelse(paper_plant_status=="native","Native (n=53)","Non-native (n=17)")) %>% 
   #remove papers that no longer have a native or non-native partner after filtering steps
   filter(!(paper_id %in% c(289,325))) %>% 
   filter(new_name!="Prosopis chilensis" | sample_country!="Kenya") %>% 
@@ -92,7 +93,7 @@ Native_NonNative_Fig1 <- Plant_Data_Clean %>%
 #Calculate N number
 Native_NonNative_N<-Native_NonNative_Fig1 %>% 
   group_by(Graph_x) %>% 
-  summarise(status=length(new_name)) #57 native, 19 non native
+  summarise(status=length(new_name)) #57 native, 17 non native
 
 #### Figure 5 ####
 ggplot(Native_NonNative_Fig1,aes(x=Graph_x,y=avg_strain_richness,fill=Graph_x))+
@@ -104,6 +105,7 @@ ggplot(Native_NonNative_Fig1,aes(x=Graph_x,y=avg_strain_richness,fill=Graph_x))+
   theme(legend.position="none")+
   expand_limits(y=c(0,25))+
   geom_rect(mapping=aes(xmin=1, xmax=3.5, ymin=0, ymax=0), fill = "white", alpha=1)
+#save at 1200 x 1000
 
 
 #### Stats ####
