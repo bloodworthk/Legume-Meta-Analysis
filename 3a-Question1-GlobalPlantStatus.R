@@ -97,8 +97,7 @@ globalStatus <- read.csv('legume_strain diversity_meta analysis_plant associatio
 
 homeAwayAll <- plantData %>% 
   filter(num_nodules>2) %>%
-  filter(!is.na(clean_name),
-         compares_homeaway==0) %>% 
+  filter(!is.na(clean_name)) %>% 
   left_join(globalStatus) %>% 
   group_by(global_plant_status, clean_name) %>%  #averaging over papers, gene regions, etc -- plant species are our "replicates" for this question
   summarise(strain_richness=mean(strain_richness)) %>% 
@@ -133,11 +132,12 @@ ggplot(data=homeAwayAll,aes(x=global_plant_status,y=strain_richness,fill=global_
   ylab('Rhizobial Strain Richness') + xlab('Global Plant Status') +
   scale_x_discrete(breaks=c('native', 'introduced'),
                    limits=c('native', 'introduced'),
-                   labels=c('Native\n(n=186)', 'Non-native\n(n=164)')) +
+                   labels=c('Native\n(n=177)', 'Non-native\n(n=155)')) +
   scale_fill_manual(values=c("#A79371","#E2E4DE"))+
   theme(legend.position="none")+
   expand_limits(y=c(0,65))+
   scale_y_continuous(breaks=c(0,20,40,60))
+#save at 1000x1000
 
 #### Creating CSV to add to Supplemental Table 1 ####
 ## creating dataframe using homeAwayAll to make csv with paper information ##
