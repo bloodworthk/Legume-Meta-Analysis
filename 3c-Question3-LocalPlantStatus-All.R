@@ -93,7 +93,7 @@ Native_NonNative_Fig1 <- Plant_Data_Clean %>%
 #Calculate N number
 Native_NonNative_N<-Native_NonNative_Fig1 %>% 
   group_by(Graph_x) %>% 
-  summarise(status=length(new_name)) #57 native, 17 non native
+  summarise(status=length(new_name)) #53 native, 17 non native
 
 #### Figure 5 ####
 ggplot(Native_NonNative_Fig1,aes(x=Graph_x,y=avg_strain_richness,fill=Graph_x))+
@@ -135,22 +135,4 @@ Overlap<-Native_NonNative_Fig1 %>%
 #### Write CSV file of Native_NonNative_Fig1 to add percent overlap data to
 write.csv(Native_NonNative_Fig1,"Fig3_Local_Overlap.csv")
 
-#### To be used in Supp Table 1 ####
-## Write CSV File with all paper information used to create figure 4 & stats for figure 4 ##
-#using first part of code where "Native_NonNative_Fig1" dataframe was created to have full list of papers used in the study
-CSV_Papers <- Plant_Data_Clean %>%
-  #merge plant associations so that we can determine plant status, etc.
-  merge(Plant_Status,by = c("paper_id", "genus_species", "new_name", "cultivation.status","sample_country"),all=TRUE) %>% 
-  select(paper_id,new_name,paper_plant_status,annual_perennial,growth_form,sample_country,sample_continent,num_nodules,genetic_region,strain_richness,compares_natinv) %>% 
-  #only keep papers that looked at native and non native species within the same location
-  filter(compares_natinv==1) %>% 
-  na.omit(plant_paper_status) %>% 
-  mutate(Graph_x=ifelse(paper_plant_status=="native","Native (n=47)","Non-native (n=19)")) %>% 
-  #remove papers that no longer have a native or non-native partner after filtering steps
-  filter(!(paper_id %in% c(289,325))) %>% 
-  select(paper_id,sample_country,new_name) %>% 
-  left_join(Paper_Information) %>% 
-  unique() %>% 
-  rename(clean_name=new_name)
 
-write.csv(CSV_Papers,"Fig4_Papers.csv")
