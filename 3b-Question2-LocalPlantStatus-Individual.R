@@ -15,11 +15,12 @@ library(ggrepel)
 library(tidyverse)
 
 theme_set(theme_bw())
-theme_update(axis.title.x=element_text(size=22, vjust=-0.35, margin=margin(t=15)), axis.text.x=element_text(size=18),
-             axis.title.y=element_text(size=22, angle=90, vjust=0.5, margin=margin(r=15)), axis.text.y=element_text(size=18),
-             plot.title = element_text(size=24, vjust=2),
-             panel.grid.major=element_blank(), panel.grid.minor=element_blank(),
-             legend.title=element_blank(), legend.text=element_text(size=20))
+theme_update(axis.title.x=element_text(size=30, vjust=-0.35, margin=margin(t=15)),
+             axis.text.x=element_text(size=30), axis.title.y=element_text(size=30, angle=90, vjust=0.5,
+                                                                          margin=margin(r=15)), axis.text.y=element_text(size=30), plot.title =
+               element_text(size=30, vjust=2), panel.grid.major=element_blank(),
+             panel.grid.minor=element_blank(), legend.title=element_blank(),
+             legend.text=element_text(size=40))
 
 ###bar graph summary statistics function
 #barGraphStats(data=, variable="", byFactorNames=c(""))
@@ -145,7 +146,7 @@ ggplot(df_summary, aes(x=plant_status, y=mean_value, group = interaction(clean_n
   scale_shape_manual(values=c(16,17,15,18))+
   coord_cartesian(xlim=c(1.5, 2))+
   expand_limits(y=c(0,15),by=5)
-#Save at 1000 x 1000
+#Save at 1100 x 1000
 
 #### Question 2B data and model####
 
