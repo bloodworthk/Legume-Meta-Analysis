@@ -1,0 +1,153 @@
+---
+title: "Maps"
+author: "Smriti Pehim Limbu"
+date: "2024-06-20"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+pacman::p_load(knitr, ggplot2,ggrepel, lmerTest, tidyverse, dplyr, readr, lme4, plyr, data.table, wesanderson)
+pacman::p_load(ggplot2, tidyverse, dplyr, readr, plyr, maps, ggspatial, rnaturalearth,rnaturalearthdata, sf, raster)
+
+```
+
+
+```{r}
+#Figure 1 map
+#Get worldmap data
+world_map <- map_data("world")
+
+country.file <- read_csv("~/Documents/Github/Legume-Meta-Analysis/Legume-Meta Analysis_Data_etc/Data/SupportingTable1_Creation.csv", 
+    col_types = cols(`Figure 2` = col_number(), 
+        `Figure 3` = col_number(), `Figure 4` = col_number(), 
+        `Figure 5` = col_number()))
+
+fig.two.file <- country.file %>% dplyr::select(sample_country, `Figure 2`)
+fig.two.file.clean <- dplyr::rename(fig.two.file, Country = sample_country, Frequency = `Figure 2`) %>% 
+    mutate(Country=ifelse(Country=="Canary_Islands","Spain",
+                  ifelse(Country=="Costa_Rica","Costa Rica",
+                  ifelse(Country=="Czech_Republic","Czechia",
+                  ifelse(Country=="England","United Kingdom",
+                  ifelse(Country=="Europe","NA",
+                  ifelse(Country=="French_Guiana","France", 
+                  ifelse(Country=="Guadeloupe","France",
+                  ifelse(Country=="Martinique","France",
+                  ifelse(Country=="New_Zealand","New Zealand",
+                  ifelse(Country=="North_America","NA",
+                  ifelse(Country=="Puerto_Rico","Puerto Rico",
+                  ifelse(Country=="South_Africa","South Africa",
+                  ifelse(Country=="UK","United Kingdom",
+                  ifelse(Country=="United_States","United States of America",
+                  Country)))))))))))))))                    
+
+fig.two <- fig.two.file.clean %>% 
+    group_by(Country) %>% dplyr::summarize(Frequency=n())
+# Load world map data
+world <- ne_countries(scale = "medium", returnclass = "sf")
+world.1 <- world %>% filter(name!="Antarctica")
+
+# Merge with frequency data
+merged_data <- merge(world.1, fig.two, by.x = "name", by.y = "Country", all.x = TRUE)
+
+# Plot map with country frequencies
+
+Figure1_Map<-ggplot(merged_data, aes(fill = Frequency)) +
+  geom_sf() +  scale_fill_gradient(low = "#de2d26", high = "gray100", na.value = "gray100", name = "Frequency of Data Points",labels = rev, limits=c(0,150)) +
+  theme_minimal() +theme_void() + theme( panel.background = element_rect(fill = "gray90", colour = NA),  
+    plot.background = element_rect(fill = "gray90", colour = NA)   
+  ) 
+
+ggsave("Figure1_Map.png",Figure1_Map,
+  path = "~/Documents/Github/Legume-Meta-Analysis/Legume-Meta Analysis_Data_etc/Figures",
+  scale = 1,
+  width = 1500,
+  height = 1000,
+  units = c("in", "cm", "mm", "px"),
+  dpi = 300,
+)
+
+#figure 3- homeaway map
+country_coords_txt <- "
+ 1    -98.5795  39.8283       U.S.A.
+ 2    14.41854  50.0736 'Czech Republic'
+ 3    -55       -10     'Brazil'
+ 4    121       23.5      Taiwan
+ 5    24        -29  'South Africa'
+ 6    133       -27    Australia
+ 8      9        51       Germany
+ 9    -3.4359    55.3780    U.K.
+10    -6.6761    42.955    France
+11    43.5242    42.172    Georgia
+12    19.379268  47.165   Hungary
+13    12.201049  42.7156  Italy
+14    24.9831    45.848   Romania
+15    -3.70353   40.207   Spain
+16    -66.170    7.1222  Venezuela
+17     105        35      China"
+
+
+nodes <- read.delim(text = country_coords_txt, header = FALSE,
+                    quote = "'", sep = "",
+                    col.names = c('id', 'lon', 'lat', 'name'))
+
+
+
+#remove antarctica
+
+world_map.g <- world_map %>% filter(region!="Antarctica")
+
+fig <- ggplot() + geom_polygon(aes(x=long, y = lat, group=group), data= world_map.g, fill="gray87", color="black") + geom_point(data=nodes, aes(x = lon[1], y = lat[1]), color="black", fill="white", size=3.5, shape =21, stroke=2) +
+  geom_point(data=nodes, aes(x = lon[8], y = lat[8]), color="black", fill="white", size=3.5, shape =21, stroke = 2)+
+  geom_point(data=nodes, aes(x = lon[2], y = lat[2]), color="black", fill="white", size=3.5, shape =21, stroke = 2) +
+  geom_point(data=nodes, aes(x = lon[9], y = lat[9]), color="black", fill="white", size=3.5, shape =21, stroke=2) +
+  geom_point(data=nodes, aes(x = lon[10], y = lat[10]), color="black", fill="white", size=3.5, shape =21, stroke = 2)+
+  geom_point(data=nodes, aes(x = lon[11], y = lat[11]), color="black", fill="white", size=3.5, shape =21, stroke = 2)+ geom_point(data=nodes, aes(x = lon[12], y = lat[12]), color="black", fill="white", size=3.5, shape =21, stroke=2) +
+  geom_point(data=nodes, aes(x = lon[13], y = lat[13]), color="black", fill="white", size=3.5, shape =21, stroke = 2)+ geom_point(data=nodes, aes(x = lon[3], y = lat[3]), color="black", fill="white", size=3.5, shape =21, stroke = 2)+ geom_point(data=nodes, aes(x = lon[14], y = lat[14]), color="black", fill="white", size=3.5, shape =21, stroke = 2)+ geom_point(data=nodes, aes(x = lon[15], y = lat[15]), color="black", fill="white", size=3.5, shape =21, stroke = 2)+ geom_point(data=nodes, aes(x = lon[16], y = lat[16]), color="black", fill="white", size=3.5, shape =21, stroke = 2)+ geom_point(data=nodes, aes(x = lon[7], y = lat[7]), color="black", fill="white", size=3.5, shape =21, stroke = 2)
+
+
+fig.a <- fig + geom_point(data=nodes, aes(x = lon[4], y = lat[4]), color="black", fill="white", size=3.5, shape =21, stroke=2) +geom_point(data=nodes, aes(x = lon[5], y = lat[5]), color="black", fill="white", size=3.5, shape =21, stroke = 2)+ geom_point(data=nodes, aes(x = lon[6], y = lat[6]), color="black", fill="white", size=3.5, shape =21, stroke = 2)+theme(panel.background = element_rect(fill="slategray4")) + theme( panel.grid.major = element_blank(),   panel.grid.minor = element_blank()) + xlab ("Latitude") + ylab("Longitude") 
+
+fig.b <- fig.a+ geom_curve(data = nodes, aes(x = lon[1], y = lat[1], xend = lon[8], yend = lat[8]), color ="#8C4843" , size = 1.1, linetype="solid", curvature = 0.33) + geom_curve(data = nodes, aes(x = lon[1], y = lat[1], xend = lon[2], yend = lat[2]), color = "#AB92BF", size = 1.1, linetype="solid", curvature = 0.33) + geom_curve(data = nodes, aes(x = lon[1], y = lat[1], xend = lon[2], yend = lat[2]), color = "#AB92BF", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = nodes, aes(x = lon[1], y = lat[1], xend = lon[10], yend = lat[10]), color = "#AB92BF", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = nodes, aes(x = lon[1], y = lat[1], xend = lon[11], yend = lat[11]), color = "#AB92BF", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = nodes, aes(x = lon[1], y = lat[1], xend = lon[12], yend = lat[12]), color = "#AB92BF", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = nodes, aes(x = lon[1], y = lat[1], xend = lon[13], yend = lat[13]), color = "#AB92BF", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = nodes, aes(x = lon[1], y = lat[1], xend = lon[14], yend = lat[14]), color = "#AB92BF", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = nodes, aes(x = lon[1], y = lat[1], xend = lon[9], yend = lat[9]), color = "#AB92BF", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = nodes, aes(x = lon[1], y = lat[1], xend = lon[16], yend = lat[16]), color = "#AB92BF", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = nodes, aes(x = lon[1], y = lat[1], xend = lon[7], yend = lat[7]), color = "#AB92BF", size = 1.1, linetype="solid", curvature = 0.33) +  geom_curve(data = nodes, aes(x = lon[3], y = lat[3], xend = lon[4], yend = lat[4]), color = "#189993", size = 1.1, linetype="solid", curvature = 0.33)+  geom_curve(data = nodes, aes(x = lon[15], y = lat[15], xend = lon[4], yend = lat[4]), color = "#189993", size = 1.1, linetype="solid", curvature = 0.33) +  geom_curve(data = nodes, aes(x = lon[5], y = lat[5], xend = lon[6], yend = lat[6]), color = "#414535", size = 1.1, linetype="solid", curvature = 0.33)
+
+
+
+###########figure 4 map
+# Load world map data with centroids
+world <- ne_countries(scale = "medium", returnclass = "sf")
+world.1 <- subset(world, sovereignt!="Antarctica")
+# Calculate centroids
+centroids <- st_centroid(world)
+
+# Extract latitude and longitude
+country_coordinates <- data.frame(
+  country = world$name,
+  latitude = st_coordinates(centroids)[, 2],
+  longitude = st_coordinates(centroids)[, 1]
+)
+
+# Print the resulting data frame
+print(country_coordinates)
+
+df_centroid <- country_coordinates
+colnames(df_centroid)[colnames(df_centroid) == "country"] <- "region"
+
+df_centroid$region[df_centroid$region == "United States of America"] <- "USA"
+df_centroid$region[df_centroid$region == "United Kingdom"] <- "UK"
+
+df_3a<- left_join(world_map.g, df_centroid, by="region") %>% group_by(region, group)%>% dplyr::summarize(latitude=mean(latitude), longitude=mean(longitude))
+
+
+fig.d <- ggplot() + geom_polygon(aes(x=long, y = lat, group=group), data= world_map.g, fill="gray87", color="black")+theme(panel.background = element_rect(fill="slategray4")) + theme( panel.grid.major = element_blank(),   panel.grid.minor = element_blank()) + xlab ("Latitude") + ylab("Longitude") + geom_point(data=df_3a, aes(x = longitude[20], y = latitude[20]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[1076], y = latitude[1076]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[460], y = latitude[460]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[832], y = latitude[832]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[3], y = latitude[3]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[1170], y = latitude[1170]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[260], y = latitude[260]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[100], y = latitude[100]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[1350], y = latitude[1350]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[925], y = latitude[925]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[1315], y = latitude[1315]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[330], y = latitude[330]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[855], y = latitude[855]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[111], y = latitude[111]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[1265], y = latitude[1265]), color="black", fill="white", size=3.5, shape =21, stroke=2) + geom_point(data=df_3a, aes(x = longitude[10], y = latitude[10]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[1255], y = latitude[1255]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[1300], y = latitude[1300]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[1495], y = latitude[1495]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[1060], y = latitude[1060]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[1272], y = latitude[1272]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[585], y = latitude[585]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[563], y = latitude[563]), color="black", fill="white", size=3.5, shape =21, stroke=2)+ geom_point(data=df_3a, aes(x = longitude[1202], y = latitude[1202]), color="black", fill="white", size=3.5, shape =21, stroke=2)
+
+
+fig.e <- fig.d + geom_curve(data = df_3a, aes(x = longitude[20], y = latitude[20], xend = longitude[1076], yend = latitude[1076]), color = "gold1", size = 1.1, linetype="solid", curvature = 0.33) + geom_curve(data = df_3a, aes(x = longitude[460], y = latitude[460], xend = longitude[832], yend = latitude[832]), color = "cornflowerblue", size = 1.1, linetype="solid", curvature = 0.33) + geom_curve(data = df_3a, aes(x = longitude[20], y = latitude[20], xend = longitude[1076], yend = latitude[1076]), color = "gray28", size = 1.1, linetype="solid", curvature = 0.63) + geom_curve(data = df_3a, aes(x = longitude[20], y = latitude[20], xend = longitude[3], yend = latitude[3]), color = "gray28", size = 1.1, linetype="solid", curvature = 0.6)+ geom_curve(data = df_3a, aes(x = longitude[1170], y = latitude[1170], xend = longitude[260], yend = latitude[260]), color = "burlywood", size = 1.1, linetype="solid", curvature = 0.33) + geom_curve(data = df_3a, aes(x = longitude[1076], y = latitude[1076], xend = longitude[260], yend = latitude[260]), color = "burlywood", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[1170], y = latitude[1170], xend = longitude[260], yend = latitude[260]), color = "salmon2", size = 1.1, linetype="solid", curvature = 0.13)+ geom_curve(data = df_3a, aes(x = longitude[100], y = latitude[100], xend = longitude[1350], yend = latitude[1350]), color = "palegreen4", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[100], y = latitude[100], xend = longitude[925], yend = latitude[925]), color = "palegreen4", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[1076], y = latitude[1076], xend = longitude[925], yend = latitude[925]), color = "palegreen4", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[1076], y = latitude[1076], xend = longitude[1350], yend = latitude[1350]), color = "palegreen4", size = 1.1, linetype="solid", curvature = 0.13) + geom_curve(data = df_3a, aes(x = longitude[1170], y = latitude[1170], xend = longitude[1315], yend = latitude[1315]), color = "royalblue2", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[1170], y = latitude[1170], xend = longitude[925], yend = latitude[925]), color = "royalblue2", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[330], y = latitude[330], xend = longitude[1350], yend = latitude[1350]), color = "red", size = 1.1, linetype="solid", curvature = 0.53)+ geom_curve(data = df_3a, aes(x = longitude[100], y = latitude[100], xend = longitude[260], yend = latitude[260]), color = "darkgreen", size = 1.1, linetype="solid", curvature = 0.33)+  geom_curve(data = df_3a, aes(x = longitude[855], y = latitude[855], xend = longitude[111], yend = latitude[111]), color = "skyblue", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[855], y = latitude[855], xend = longitude[330], yend = latitude[330]), color = "skyblue", size = 1.1, linetype="solid", curvature = 0.33) + geom_curve(data = df_3a, aes(x = longitude[1265], y = latitude[1265], xend = longitude[925], yend = latitude[925]), color = "black", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[100], y = latitude[100], xend = longitude[925], yend = latitude[925]), color = "black", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[330], y = latitude[330], xend = longitude[10], yend = latitude[10]), color = "darkolivegreen", size = 1.1, linetype="solid", curvature = 0.33) + geom_curve(data = df_3a, aes(x = longitude[1255], y = latitude[1255], xend = longitude[1350], yend = latitude[1350]), color = "tomato3", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[1300], y = latitude[1300], xend = longitude[460], yend = latitude[460]), color = "brown", size = 1.1, linetype="solid", curvature = 0.33)
+
+fig.f <- fig.e + geom_curve(data = df_3a, aes(x = longitude[111], y = latitude[111], xend = longitude[20], yend = latitude[20]), color = "#189993", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[111], y = latitude[111], xend = longitude[1060], yend = latitude[1060]), color = "#189993", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[111], y = latitude[111], xend = longitude[1272], yend = latitude[1272]), color = "#189993", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[111], y = latitude[111], xend = longitude[585], yend = latitude[585]), color = "#189993", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[111], y = latitude[111], xend = longitude[563], yend = latitude[563]), color = "#189993", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[1495], y = latitude[1495], xend = longitude[20], yend = latitude[20]), color = "#189993", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[1495], y = latitude[1495], xend = longitude[1060], yend = latitude[1060]), color = "#189993", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[1495], y = latitude[1495], xend = longitude[1272], yend = latitude[1272]), color = "#189993", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[1495], y = latitude[1495], xend = longitude[585], yend = latitude[585]), color = "#189993", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[1495], y = latitude[1495], xend = longitude[563], yend = latitude[563]), color = "#189993", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[460], y = latitude[460], xend = longitude[20], yend = latitude[20]), color = "#189993", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[460], y = latitude[460], xend = longitude[1060], yend = latitude[1060]), color = "#189993", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[460], y = latitude[460], xend = longitude[1272], yend = latitude[1272]), color = "#189993", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[460], y = latitude[460], xend = longitude[585], yend = latitude[585]), color = "#189993", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[460], y = latitude[460], xend = longitude[563], yend = latitude[563]), color = "#189993", size = 1.1, linetype="solid", curvature = 0.33)+ geom_curve(data = df_3a, aes(x = longitude[1202], y = latitude[1202], xend = longitude[585], yend = latitude[585]), color = "pink", size = 1.1, linetype="solid", curvature = 0.33)
+
+```
+
+
