@@ -125,6 +125,12 @@ homeAwayAllModel <- lm(log(strain_richness) ~ global_plant_status,
 summary(homeAwayAllModel)
 anova(homeAwayAllModel)
 
+# homeAwayAllModel <- lmer(log(strain_richness) ~ global_plant_status + (1|clean_name) + (1|genetic_region),
+#                         data=homeAwayAll)
+# summary(homeAwayAllModel)
+# anova(homeAwayAllModel)
+
+
 #### Manuscript Figure 2 ####
 #Figure 2 boxplot (using in MS)
 ggplot(data=homeAwayAll,aes(x=global_plant_status,y=strain_richness,fill=global_plant_status))+
