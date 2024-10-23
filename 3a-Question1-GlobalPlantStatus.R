@@ -57,7 +57,7 @@ cleanNames <- read.csv('legume_clean_names.csv') %>%
 # getting native/invasive status for each study and legume species
 plantStatus <- read.csv('legume_strain diversity_meta analysis_plant associations_edited names_presence absence.csv') %>% 
   left_join(cleanNames) %>%
-  #rename(paper_id=ï..paper_id) %>% 
+  rename(paper_id=ï..paper_id) %>%
   select(paper_id, clean_name, plant_status, sample_country) %>% 
   unique()
 
@@ -89,7 +89,7 @@ plantData <- read.csv("legume_strain diversity_meta analysis_plant data.csv") %>
 plantData[plantData==""]<-NA
 
 globalStatus <- read.csv('legume_strain diversity_meta analysis_plant associations_edited names_presence absence.csv') %>% 
-  #rename(paper_id=ï..paper_id) %>% 
+  rename(paper_id=ï..paper_id) %>%
   left_join(cleanNames) %>% 
   mutate(global_plant_status=ifelse((exo_NA+exo_SA+exo_AU+exo_AS+exo_EU+exo_AF)>0,'introduced','native')) %>% 
   select(paper_id, clean_name, global_plant_status) %>% 
@@ -99,10 +99,11 @@ homeAwayAll <- plantData %>%
   filter(num_nodules>2) %>%
   filter(!is.na(clean_name)) %>% 
   left_join(globalStatus) %>% 
-  group_by(global_plant_status, clean_name) %>%  #averaging over papers, gene regions, etc -- plant species are our "replicates" for this question
-  summarise(strain_richness=mean(strain_richness)) %>% 
-  ungroup() %>% 
-  filter(!is.na(strain_richness))
+  # group_by(global_plant_status, clean_name) %>%  #averaging over papers, gene regions, etc -- plant species are our "replicates" for this question
+  # summarise(strain_richness=mean(strain_richness)) %>% 
+  # ungroup() %>% 
+  filter(!is.na(strain_richness)) %>% 
+  filter(!(strain_source %in% c('999', 'rhizosphere_samples', 'NA')))
 
 
 ##### mixed model for native/invasive globally #####
@@ -120,8 +121,8 @@ shapiro.test(log(homeAwayAll$strain_richness))
 
 
 #model - all species regardless of whether home and away pairing possible
-homeAwayAllModel <- lm(log(strain_richness) ~ global_plant_status,
-                       data=homeAwayAll)
+homeAwayAllModel <- lmer(strain_richness ~ global_plant_status + (1|clean_name) + (1|genetic_region),
+                         data=homeAwayAll)
 summary(homeAwayAllModel)
 anova(homeAwayAllModel)
 
@@ -133,16 +134,16 @@ anova(homeAwayAllModel)
 
 #### Manuscript Figure 2 ####
 #Figure 2 boxplot (using in MS)
-ggplot(data=homeAwayAll,aes(x=global_plant_status,y=strain_richness,fill=global_plant_status))+
+ggplot(data=homeAwayAll, aes(x=global_plant_status, y=strain_richness, fill=global_plant_status))+
   geom_boxplot(outlier.size=3)+
   ylab('Rhizobial Strain Richness') + xlab('Global Plant Status') +
   scale_x_discrete(breaks=c('native', 'introduced'),
                    limits=c('native', 'introduced'),
-                   labels=c('Native\n(n=177)', 'Non-native\n(n=155)')) +
-  scale_fill_manual(values=c("#A79371","#E2E4DE"))+
-  theme(legend.position="none")+
-  expand_limits(y=c(0,65))+
-  scale_y_continuous(breaks=c(0,20,40,60))
+                   labels=c('Native\n(n=664)', 'Non-native\n(n=876)')) +
+  scale_fill_manual(values=c("#A79371", "#E2E4DE"))+
+  theme(legend.position="none") #+
+  # expand_limits(y=c(0,65))+
+  # scale_y_continuous(breaks=c(0,20,40,60))
 #save at 1000x1000
 
 
