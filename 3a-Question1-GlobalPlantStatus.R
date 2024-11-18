@@ -103,7 +103,8 @@ homeAwayAll <- plantData %>%
   # summarise(strain_richness=mean(strain_richness)) %>% 
   # ungroup() %>% 
   filter(!is.na(strain_richness)) %>% 
-  filter(!(strain_source %in% c('999', 'rhizosphere_samples', 'NA')))
+  filter(!(strain_source %in% c('999', 'rhizosphere_samples', 'NA', 'Look up Vincent (1970)')))
+
 
 
 ##### mixed model for native/invasive globally #####
@@ -120,16 +121,30 @@ shapiro.test(log(homeAwayAll$strain_richness))
 # W = 0.9773, p-value = 2.277e-05
 
 
+
 #model - all species regardless of whether home and away pairing possible
 homeAwayAllModel <- lmer(strain_richness ~ global_plant_status + (1|clean_name) + (1|genetic_region),
                          data=homeAwayAll)
 summary(homeAwayAllModel)
 anova(homeAwayAllModel)
+res <- resid(homeAwayAllModel)
+plot(fitted(homeAwayAllModel), res)
+qqnorm(res)
+plot(density(res))
 
 # homeAwayAllModel <- lmer(log(strain_richness) ~ global_plant_status + (1|clean_name) + (1|genetic_region),
 #                         data=homeAwayAll)
 # summary(homeAwayAllModel)
 # anova(homeAwayAllModel)
+
+x <- glmer(strain_richness ~ global_plant_status + (1|clean_name) + (1|genetic_region),
+                          data=homeAwayAll, family=Gamma(link='log'))
+summary(x)
+Anova(x)
+res <- resid(x)
+plot(fitted(x), res)
+qqnorm(res)
+plot(density(res))
 
 
 #### Manuscript Figure 2 ####
