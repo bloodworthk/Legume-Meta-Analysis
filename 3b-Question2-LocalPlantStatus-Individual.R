@@ -90,9 +90,11 @@ plantData[plantData==""]<-NA
 ggplot(data=plantData, aes(x=num_nodules, y=strain_richness)) +
   geom_jitter() +
   geom_abline(slope=1) +
-  coord_cartesian(xlim=c(0,10), ylim=c(0,10)) +
+  coord_cartesian(xlim=c(1,10), ylim=c(0,10)) +
+  scale_x_continuous(breaks=seq(0,10,2)) +
+  scale_y_continuous(breaks=seq(0,10,2)) +
   xlab('Number of Nodules Sampled') + ylab('Strain Richness')
-# ggsave('C:\\Users\\kjkomatsu\\UNCG\\Kathryn Bloodworth - Invasive Legume Meta-Analysis\\Figures\\SuppFig1_numNodules.png', width=6, height=6, units='in', dpi=300, bg='white')
+# ggsave('C:\\Users\\kjkomatsu\\UNCG\\Kathryn Bloodworth - Invasive Legume Meta-Analysis\\Figures\\SuppFig1_numNodules_2.png', width=6, height=6, units='in', dpi=300, bg='white')
 
 #### Question 2A data and model ####
 
