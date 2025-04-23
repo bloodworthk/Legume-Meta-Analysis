@@ -57,7 +57,7 @@ cleanNames <- read.csv('legume_clean_names.csv') %>%
 # getting native/invasive status for each study and legume species
 plantStatus <- read.csv('legume_strain diversity_meta analysis_plant associations_edited names_presence absence.csv') %>% 
   left_join(cleanNames) %>%
-  rename(paper_id=ï..paper_id) %>%
+  # rename(paper_id=ï..paper_id) %>%
   select(paper_id, clean_name, plant_status, sample_country) %>% 
   unique()
 
@@ -89,7 +89,7 @@ plantData <- read.csv("legume_strain diversity_meta analysis_plant data.csv") %>
 plantData[plantData==""]<-NA
 
 globalStatus <- read.csv('legume_strain diversity_meta analysis_plant associations_edited names_presence absence.csv') %>% 
-  rename(paper_id=ï..paper_id) %>%
+  # rename(paper_id=ï..paper_id) %>%
   left_join(cleanNames) %>% 
   mutate(global_plant_status=ifelse((exo_NA+exo_SA+exo_AU+exo_AS+exo_EU+exo_AF)>0,'introduced','native')) %>% 
   select(paper_id, clean_name, global_plant_status) %>% 
