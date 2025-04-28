@@ -105,7 +105,34 @@ homeAwayAll <- plantData %>%
   filter(!is.na(strain_richness)) %>% 
   filter(!(strain_source %in% c('999', 'rhizosphere_samples', 'NA', 'Look up Vincent (1970)')))
 
+#### Determine number of countries, species, etc. ####
 
+unique(sort(homeAwayAll$sample_country))
+
+NonNative_Species<-homeAwayAll %>% 
+  filter(global_plant_status=="introduced")
+
+unique(sort(NonNative_Species$clean_name))
+unique(sort(NonNative_Species$sample_country))
+
+Native_Species<-homeAwayAll %>% 
+  filter(global_plant_status=="native")
+
+unique(sort(Native_Species$clean_name))
+unique(sort(Native_Species$sample_country))
+
+#local plant status
+NonNative_Species_Local<-homeAwayAll %>% 
+  filter(plant_status=="introduced")
+
+unique(sort(NonNative_Species_Local$clean_name))
+unique(sort(NonNative_Species_Local$sample_country))
+
+Native_Species_Local<-homeAwayAll %>% 
+  filter(plant_status=="native")
+
+unique(sort(Native_Species_Local$clean_name))
+unique(sort(Native_Species_Local$sample_country))
 
 ##### mixed model for native/invasive globally #####
 
@@ -137,8 +164,18 @@ plot(density(res))
 # summary(homeAwayAllModel)
 # anova(homeAwayAllModel)
 
-x <- glmer(strain_richness ~ global_plant_status + (1|clean_name) + (1|genetic_region),
-                          data=homeAwayAll, family=Gamma(link='log'))
+### cannot use poisson(link='log') because data are overdispersed 
+#x <- glmer(strain_richness ~ global_plant_status + (1|clean_name) + (1|genetic_region),
+                          #data=homeAwayAll, family=poisson(link#='log'))
+
+#check for over dispersion
+#library(performance)
+#check_overdispersion(x)
+
+library(glmmTMB)
+x=glmmTMB(strain_richness ~ global_plant_status + (1|clean_name) + (1|genetic_region),
+        data = homeAwayAll, family = nbinom2(link = "log"))
+
 summary(x)
 Anova(x)
 res <- resid(x)
