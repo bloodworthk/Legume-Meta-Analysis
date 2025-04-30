@@ -51,14 +51,14 @@ barGraphStats <- function(data, variable, byFactorNames) {
 cleanNames <- read.csv('legume_clean_names.csv') %>% 
   separate(old_genus_species,c("genus","species","subspecies","extra"),sep=" ") %>% 
   unite(col=genus_species, c(genus,species,subspecies,extra), sep='_',na.rm=TRUE) %>% 
-  rename(clean_name=new_name) %>% 
-  select(-notes)
+  dplyr::rename(clean_name=new_name) %>% 
+  dplyr::select(-notes)
 
 # getting native/invasive status for each study and legume species
 plantStatus <- read.csv('legume_strain diversity_meta analysis_plant associations_edited names_presence absence.csv') %>% 
   left_join(cleanNames) %>%
   # rename(paper_id=ï..paper_id) %>%
-  select(paper_id, clean_name, plant_status, sample_country) %>% 
+  dplyr::select(paper_id, clean_name, plant_status, sample_country) %>% 
   unique()
 
 # removing species where legume species isn't clear, native/invasive status is unknown, and cultivated species
@@ -67,7 +67,7 @@ plantData <- read.csv("legume_strain diversity_meta analysis_plant data.csv") %>
   mutate(across(all_of(c('sites_sampled', 'num_nodules', 'strain_richness', 'proportion_novel_strains',
                          'proportion_familiar_strains', 'proportion_overlapping_strains', 'num_spp_compared')), ~na_if(., 999))) %>% 
   left_join(cleanNames) %>% 
-  select(-notes, -genus_species) %>% 
+  dplyr::select(-notes, -genus_species) %>% 
   full_join(plantStatus) %>% 
   mutate(plant_status=ifelse(plant_status=='invasive', 'introduced', plant_status)) %>% 
   filter(cultivation.status!='row crop',
@@ -92,7 +92,7 @@ globalStatus <- read.csv('legume_strain diversity_meta analysis_plant associatio
   # rename(paper_id=ï..paper_id) %>%
   left_join(cleanNames) %>% 
   mutate(global_plant_status=ifelse((exo_NA+exo_SA+exo_AU+exo_AS+exo_EU+exo_AF)>0,'introduced','native')) %>% 
-  select(paper_id, clean_name, global_plant_status) %>% 
+  dplyr::select(paper_id, clean_name, global_plant_status) %>% 
   unique()
 
 homeAwayAll <- plantData %>% 
