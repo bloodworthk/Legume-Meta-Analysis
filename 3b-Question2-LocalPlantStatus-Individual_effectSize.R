@@ -117,61 +117,90 @@ str(paper_plant_status)
 
 hist(paper_plant_status$strain_richness_lnRR)
 
-
+#overall effect size
 t.test(paper_plant_status$strain_richness_lnRR, y = NULL,
        alternative = "two.sided",
        mu = 0, paired = FALSE, var.equal = FALSE,
        conf.level = 0.95)
 
 
-
-# model2a <- lm(strain_richness_lnRR~plant_status*clean_name, paper_plant_status)
-# anova(model2a)
-# plot(model2a)
-# residuals <- resid(model2a)
-# qqnorm(residuals)
-# hist(residuals)
+#by species
+model2a <- lm(strain_richness_lnRR~plant_status*clean_name, paper_plant_status)
+anova(model2a)
+plot(model2a)
+residuals <- resid(model2a)
+qqnorm(residuals)
+hist(residuals)
 
 
 #### Manuscript Figure 3b ####
-# ggplot(df_summary, aes(x=plant_status, y=mean_value, group = interaction(clean_name), color= interaction(clean_name))) +
-#   geom_line( size= 1.5) +
-#   geom_point(aes(shape=clean_name), size = 5) +
-#   geom_text_repel(data = subset(df_summary, plant_status == "Non-native"),
-#                   aes(label = clean_name, size=14), 
-#                   nudge_x = 0.1, direction = "y", hjust = 0,
-#                   max.overlaps=100,fontface = "italic",
-#                   size=8
-#                   # box.padding = 0.5, point.padding = 0.5,
-#                   # segment.color = 'transparent'  
-#   ) +
-#   theme(legend.position = "none")+
-#   ylab('Rhizobial Strain Richness') + xlab('Local Plant Status') +
-#   scale_x_discrete(breaks=c('Native', 'Non-native'),
-#                    limits=c('Native', 'Non-native'),
-#                    labels=c('Native\n(n=8)', 'Non-native\n(n=13)')
-#                    # , expand = expansion(mult = 2.5)
-#   )+
-#   scale_color_manual(values=c("#414535","#8C4843","#189993","#AB92BF"))+
-#   scale_shape_manual(values=c(16,17,15,18))+
-#   coord_cartesian(xlim=c(1.5, 2))+
-#   expand_limits(y=c(0,15),by=5)
-# #Save at 1100 x 1000
+alpha <- 0.05
+df_summary <- plantData %>%
+  filter(num_nodules>2) %>%
+  filter(!is.na(clean_name),
+         compares_homeaway==1) %>% 
+  group_by(clean_name) %>% 
+  filter(all(c("native", "introduced") %in% plant_status)) %>% 
+  ungroup() %>% 
+  group_by(clean_name,plant_status) %>% 
+  dplyr::summarize(mean_value = mean(strain_richness)) %>% 
+  ungroup()
 
-fig3bData <- paper_plant_status %>% 
-  summarise(strain_richness_lnRR_mean=mean(strain_richness_lnRR, na.rm=T),
-            strain_richness_lnRR_n=length(strain_richness_lnRR),
-            strain_richness_lnRR_sd=sd(strain_richness_lnRR, na.rm=T)) %>% 
-  mutate(strain_richness_lnRR_se=strain_richness_lnRR_sd/sqrt(strain_richness_lnRR_n),
-         strain_richness_lnRR_ci=1.96*(strain_richness_lnRR_se))
-  
-ggplot(fig3bData, aes(x=strain_richness_lnRR_mean, y=strain_richness_lnRR_mean)) +
-  geom_point(size = 5) +
-  geom_errorbar(aes(ymin=strain_richness_lnRR_mean-strain_richness_lnRR_ci, ymax=strain_richness_lnRR_mean+strain_richness_lnRR_ci), width=0.1) +
-  coord_cartesian(ylim=c(-0.1, 0.6),
-                  xlim=c(0.1, 0.5)) +
-  geom_hline(yintercept=0)
-#Save at 1100 x 1000
+df_summary$plant_status[df_summary$plant_status == "introduced"] <- "Non-native"
+df_summary$plant_status[df_summary$plant_status == "native"] <- "Native"
+
+df_summary1 <- plantData %>%
+  filter(num_nodules>2) %>%
+  filter(!is.na(clean_name),
+         compares_homeaway==1) %>% 
+  group_by(clean_name) %>% 
+  filter(all(c("native", "introduced") %in% plant_status)) %>% 
+  ungroup() %>% 
+  group_by(clean_name, plant_status, proportion_novel_strains, proportion_familiar_strains) %>% 
+  dplyr::summarize(mean_value = mean(strain_richness)) %>% 
+  ungroup()
+
+
+ggplot(df_summary, aes(x=plant_status, y=mean_value, group = interaction(clean_name), color= interaction(clean_name))) +
+  geom_line( size= 1.5) +
+  geom_point(aes(shape=clean_name), size = 5) +
+  geom_text_repel(data = subset(df_summary, plant_status == "Non-native"),
+                  aes(label = clean_name, size=14),
+                  nudge_x = 0.1, direction = "y", hjust = 0,
+                  max.overlaps=100,fontface = "italic",
+                  size=8
+                  # box.padding = 0.5, point.padding = 0.5,
+                  # segment.color = 'transparent'
+  ) +
+  theme(legend.position = "none")+
+  ylab('Rhizobial Strain Richness') + xlab('Local Plant Status') +
+  scale_x_discrete(breaks=c('Native', 'Non-native'),
+                   limits=c('Native', 'Non-native'),
+                   labels=c('Native\n(n=8)', 'Non-native\n(n=13)')
+                   # , expand = expansion(mult = 2.5)
+  )+
+  scale_color_manual(values=c("#414535","#8C4843","#189993","#AB92BF"))+
+  scale_shape_manual(values=c(16,17,15,18))+
+  coord_cartesian(xlim=c(1.5, 2))+
+  expand_limits(y=c(0,15),by=5)
+s#Save at 1100 x 1000
+
+
+# lnRR figure (not shown in paper, mean +/- 95% CI reported in text)
+# fig3bData <- paper_plant_status %>% 
+#   summarise(strain_richness_lnRR_mean=mean(strain_richness_lnRR, na.rm=T),
+#             strain_richness_lnRR_n=length(strain_richness_lnRR),
+#             strain_richness_lnRR_sd=sd(strain_richness_lnRR, na.rm=T)) %>% 
+#   mutate(strain_richness_lnRR_se=strain_richness_lnRR_sd/sqrt(strain_richness_lnRR_n),
+#          strain_richness_lnRR_ci=1.96*(strain_richness_lnRR_se))
+#   
+# ggplot(fig3bData, aes(x=strain_richness_lnRR_mean, y=strain_richness_lnRR_mean)) +
+#   geom_point(size = 5) +
+#   geom_errorbar(aes(ymin=strain_richness_lnRR_mean-strain_richness_lnRR_ci, ymax=strain_richness_lnRR_mean+strain_richness_lnRR_ci), width=0.1) +
+#   coord_cartesian(ylim=c(-0.1, 0.6),
+#                   xlim=c(0.1, 0.5)) +
+#   geom_hline(yintercept=0)
+# #Save at 1100 x 1000
 
 
 #### Question 2B data and model####
